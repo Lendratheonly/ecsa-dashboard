@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECSA — Program Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --gold:#b9a17b;--gold-light:#d4bc98;--gold-dark:#7a6a52;
+  --dark:#0f0f0f;--dark2:#1a1a1a;--dark3:#242424;
+  --gray:#6b6b6b;--gray2:#9a9a9a;
+  --hc:#c0392b;--tech:#1a5f8a;--biz:#96620a;--teal:#0e7c5e;
+  --sidebar:260px;
+}
+html,body{height:100%;font-family:'Outfit',sans-serif;background:var(--dark);color:#fff;}
+.app{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--dark2);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;border-right:1px solid rgba(185,161,123,0.1);}
+.sb-brand{padding:28px 24px 22px;border-bottom:1px solid rgba(185,161,123,0.1);}
+.sb-abbr{font-family:'Playfair Display',serif;font-size:32px;color:var(--gold);line-height:1;}
+.sb-full{font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;margin-top:6px;line-height:1.5;text-transform:uppercase;}
+.sb-mission{margin-top:8px;font-size:11px;color:rgba(185,161,123,0.5);font-style:italic;}
+.sb-nav{flex:1;padding:20px 0;overflow-y:auto;}
+.sb-sec{font-size:10px;font-weight:600;letter-spacing:0.14em;color:rgba(255,255,255,0.18);text-transform:uppercase;padding:14px 24px 6px;}
+.sb-item{display:flex;align-items:center;gap:12px;padding:11px 24px;cursor:pointer;border-left:2px solid transparent;transition:all 0.2s;text-decoration:none;}
+.sb-item:hover{background:rgba(255,255,255,0.04);border-left-color:rgba(185,161,123,0.3);}
+.sb-item.on{background:rgba(185,161,123,0.08);border-left-color:var(--gold);}
+.sb-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.12);flex-shrink:0;}
+.sb-item.on .sb-dot{background:var(--gold);}
+.sb-lbl{font-size:13px;color:rgba(255,255,255,0.4);font-weight:400;}
+.sb-item.on .sb-lbl{color:var(--gold-light);}
+.sb-badge{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(185,161,123,0.15);color:var(--gold);font-weight:600;}
+.sb-badge.new{background:rgba(14,124,94,0.2);color:#2ecc71;}
+.sb-foot{padding:20px 24px;border-top:1px solid rgba(185,161,123,0.08);}
+.sb-foot-name{font-size:12px;font-weight:600;color:rgba(255,255,255,0.35);}
+.sb-foot-sub{font-size:11px;color:rgba(255,255,255,0.18);margin-top:2px;}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;}
+.topbar{background:rgba(15,15,15,0.96);backdrop-filter:blur(10px);border-bottom:1px solid rgba(185,161,123,0.1);padding:0 40px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tb-title{font-family:'Playfair Display',serif;font-size:17px;color:#fff;}
+.tb-sub{font-size:12px;color:var(--gray2);margin-top:1px;}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.live-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(14,124,94,0.15);border:1px solid rgba(14,124,94,0.3);border-radius:20px;font-size:11px;font-weight:600;color:#2ecc71;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#2ecc71;animation:lp 2s infinite;}
+@keyframes lp{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(46,204,113,0.4);}50%{opacity:.7;box-shadow:0 0 0 4px rgba(46,204,113,0);}}
+.proto-tag{padding:4px 10px;background:rgba(185,161,123,0.1);border:1px solid rgba(185,161,123,0.2);border-radius:4px;font-size:10px;font-weight:600;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;}
+
+/* DAILY NOTIFICATION BANNER */
+.daily-banner{background:linear-gradient(135deg,rgba(185,161,123,0.12),rgba(185,161,123,0.06));border:1px solid rgba(185,161,123,0.25);border-radius:12px;padding:14px 20px;margin:20px 40px 0;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.2s;}
+.daily-banner:hover{background:rgba(185,161,123,0.15);}
+.daily-banner-icon{width:38px;height:38px;border-radius:50%;background:rgba(185,161,123,0.15);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.daily-banner-text{flex:1;}
+.daily-banner-title{font-size:13px;font-weight:600;color:var(--gold-light);}
+.daily-banner-sub{font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;}
+.daily-banner-cta{font-size:12px;font-weight:600;color:var(--gold);white-space:nowrap;}
+.daily-banner-dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;flex-shrink:0;animation:lp 2s infinite;}
+
+.content{flex:1;padding:28px 40px 60px;}
+.panel{display:none;animation:fi 0.3s ease;}.panel.on{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* SHARED */
+.phase-hdr{margin-bottom:28px;}
+.phase-eye{font-size:11px;font-weight:600;letter-spacing:0.16em;color:var(--gold);text-transform:uppercase;}
+.phase-title{font-family:'Playfair Display',serif;font-size:28px;color:#fff;margin-top:6px;line-height:1.2;}
+.phase-sub{font-size:14px;color:var(--gray2);margin-top:6px;line-height:1.6;max-width:620px;}
+.ctitle{font-size:11px;font-weight:600;color:rgba(255,255,255,0.35);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.08em;}
+.dark3{background:var(--dark3);}
+.card{background:var(--dark3);border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:22px;}
+
+/* JOURNEY */
+.journey-wrap{display:grid;grid-template-columns:1fr 270px;gap:20px;}
+.phases{position:relative;}
+.phases::before{content:'';position:absolute;left:20px;top:24px;bottom:24px;width:1px;background:linear-gradient(to bottom,var(--gold),rgba(185,161,123,0.05));}
+.phase-row{display:flex;gap:20px;padding-bottom:18px;}
+.phase-dot{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:16px;color:#fff;flex-shrink:0;position:relative;z-index:1;box-shadow:0 0 0 4px var(--dark);}
+.phase-body{flex:1;background:var(--dark3);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:16px 20px;}
+.phase-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px;}
+.phase-time{font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;}
+.phase-items{list-style:none;}
+.phase-items li{font-size:12px;color:rgba(255,255,255,0.42);padding-left:14px;position:relative;line-height:1.6;margin-bottom:4px;}
+.phase-items li::before{content:'—';position:absolute;left:0;color:var(--gold);font-size:10px;top:1px;}
+.ai-chip{display:inline-block;font-size:9px;padding:1px 6px;border-radius:10px;background:rgba(185,161,123,0.12);color:var(--gold);margin-left:4px;vertical-align:middle;font-weight:600;}
+.journey-right{display:flex;flex-direction:column;gap:12px;}
+.om{background:var(--dark3);border:1px solid rgba(185,161,123,0.12);border-radius:12px;padding:16px;}
+.om-lbl{font-size:10px;color:var(--gray2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+.om-val{font-family:'Playfair Display',serif;font-size:26px;color:var(--gold);line-height:1;}
+.om-sub{font-size:11px;color:rgba(255,255,255,0.28);margin-top:4px;}
+
+/* OUTCOMES */
+.oc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.oc{background:var(--dark3);border-radius:12px;padding:20px;border-top:2px solid var(--gold);position:relative;overflow:hidden;}
+.oc::before{content:attr(data-n);position:absolute;right:10px;top:0;font-family:'Playfair Display',serif;font-size:64px;color:rgba(185,161,123,0.05);line-height:1;}
+.oc-num{font-family:'Playfair Display',serif;font-size:34px;color:var(--gold);line-height:1;margin-bottom:8px;}
+.oc-lbl{font-size:12px;font-weight:600;color:rgba(255,255,255,0.8);margin-bottom:5px;}
+.oc-desc{font-size:11px;color:var(--gray2);line-height:1.5;}
+.oc-tag{font-size:10px;color:var(--gold-light);margin-top:8px;font-style:italic;}
+.ret-wrap{background:var(--dark3);border-radius:14px;padding:22px;margin-bottom:20px;}
+.ret-row{display:flex;margin-bottom:10px;border-radius:8px;overflow:hidden;}
+.ret-row:last-child{margin-bottom:0;}
+.ret-lbl{width:88px;background:rgba(255,255,255,0.04);padding:12px 14px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.45);display:flex;align-items:center;flex-shrink:0;}
+.ret-track{flex:1;background:rgba(255,255,255,0.03);height:44px;}
+.ret-fill{height:100%;display:flex;align-items:center;padding:0 14px;gap:8px;}
+.ret-pct{font-size:14px;font-weight:600;color:#fff;}
+.ret-note{font-size:11px;color:rgba(255,255,255,0.45);}
+.wealth-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.wc{background:var(--dark3);border-radius:12px;padding:18px;border-left:2px solid var(--gold);}
+.wc-icon{font-size:20px;margin-bottom:10px;}
+.wc-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:5px;}
+.wc-desc{font-size:12px;color:var(--gray2);line-height:1.5;}
+.wc-status{margin-top:10px;font-size:10px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:0.06em;}
+
+/* MENTOR */
+.mentor-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.mm{background:var(--dark3);border-radius:12px;padding:18px;text-align:center;}
+.mm-val{font-family:'Playfair Display',serif;font-size:28px;color:var(--gold);line-height:1;}
+.mm-lbl{font-size:11px;color:var(--gray2);margin-top:6px;text-transform:uppercase;letter-spacing:0.06em;}
+.mm-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:3px;margin-top:12px;overflow:hidden;}
+.mm-fill{height:100%;border-radius:3px;background:var(--gold);}
+.mentor-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.match-card,.checkin-card{background:var(--dark3);border-radius:14px;padding:22px;}
+.match-title{font-size:11px;font-weight:600;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;}
+.match-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.match-row:last-child{border-bottom:none;}
+.match-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0;}
+.match-name{font-size:13px;font-weight:500;color:#fff;}
+.match-track{font-size:11px;color:var(--gray2);}
+.ms{font-size:11px;padding:3px 8px;border-radius:10px;font-weight:500;}
+.ms-a{background:rgba(14,124,94,0.15);color:#2ecc71;}
+.ms-p{background:rgba(185,161,123,0.12);color:var(--gold);}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px;}
+.wd-lbl{font-size:10px;color:var(--gray2);margin-bottom:5px;text-transform:uppercase;text-align:center;}
+.wd-dot{width:100%;aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;}
+.wd-done{background:rgba(185,161,123,0.15);color:var(--gold);}
+.wd-miss{background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.15);}
+.wd-today{background:var(--gold);color:var(--dark);}
+
+/* EMPLOYERS */
+.emp-hdr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.ehc{background:var(--dark3);border-radius:12px;padding:18px;border-top:2px solid;}
+.ehc-track{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+.ehc-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;}
+.ehc-seats{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);}
+.ehc-seats-lbl{font-size:11px;color:var(--gray2);}
+.ehc-s{display:flex;align-items:center;gap:6px;margin-top:10px;}
+.ehc-sdot{width:6px;height:6px;border-radius:50%;}
+.ehc-slbl{font-size:11px;color:var(--gray2);}
+.emp-table-wrap{background:var(--dark3);border-radius:14px;overflow:hidden;}
+.emp-t{width:100%;border-collapse:collapse;}
+.emp-t th{background:rgba(185,161,123,0.07);padding:12px 18px;font-size:11px;font-weight:600;color:var(--gold);text-align:left;text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid rgba(255,255,255,0.04);}
+.emp-t td{padding:13px 18px;font-size:12px;color:rgba(255,255,255,0.65);border-bottom:1px solid rgba(255,255,255,0.03);}
+.emp-t tr:last-child td{border-bottom:none;}
+.tdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+.badge{display:inline-block;font-size:10px;padding:3px 8px;border-radius:10px;font-weight:500;}
+.b-prog{background:rgba(185,161,123,0.12);color:var(--gold);}
+.b-tgt{background:rgba(26,95,138,0.18);color:#5dade2;}
+
+/* SCALE */
+.scale-hero{background:var(--dark3);border-radius:16px;padding:32px;margin-bottom:20px;text-align:center;position:relative;overflow:hidden;}
+.scale-hero::before{content:'5M';position:absolute;font-family:'Playfair Display',serif;font-size:200px;color:rgba(185,161,123,0.03);right:-20px;top:-20px;line-height:1;}
+.sh-num{font-family:'Playfair Display',serif;font-size:54px;color:var(--gold);line-height:1;}
+.sh-lbl{font-size:14px;color:var(--gray2);margin-top:6px;}
+.sh-sub{font-size:12px;color:rgba(255,255,255,0.25);margin-top:4px;}
+.scale-stages{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.ss{display:flex;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.04);}
+.ss-num{width:46px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:18px;color:#fff;flex-shrink:0;}
+.ss-body{flex:1;background:var(--dark3);padding:12px 18px;}
+.ss-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px;}
+.ss-detail{font-size:12px;color:var(--gray2);}
+.ss-count{background:rgba(255,255,255,0.02);padding:12px 18px;display:flex;align-items:center;min-width:100px;justify-content:flex-end;}
+.ss-val{font-family:'Playfair Display',serif;font-size:15px;color:rgba(255,255,255,0.35);}
+.ss-val.now{color:var(--gold);font-size:19px;}
+.ss.curr .ss-body{border-left:2px solid var(--gold);}
+.nj-math{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.nm{background:var(--dark3);border-radius:10px;padding:16px;text-align:center;}
+.nm-val{font-family:'Playfair Display',serif;font-size:26px;color:var(--gold);}
+.nm-lbl{font-size:11px;color:var(--gray2);margin-top:4px;line-height:1.4;}
+
+/* CAREER RESOURCES */
+.cr-setup{background:var(--dark3);border-radius:14px;padding:24px;margin-bottom:20px;}
+.cr-setup-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px;}
+.cr-setup-sub{font-size:12px;color:var(--gray2);margin-bottom:18px;}
+.cr-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;}
+.cr-fl{font-size:10px;font-weight:600;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;display:block;}
+.cr-fi,.cr-fs{width:100%;padding:10px 13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:13px;font-family:'Outfit',sans-serif;color:#fff;outline:none;transition:border-color 0.2s;}
+.cr-fi:focus,.cr-fs:focus{border-color:var(--gold);}
+.cr-fs option{background:var(--dark2);}
+.cr-btn{padding:10px 20px;background:var(--gold);color:var(--dark);border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;white-space:nowrap;transition:background 0.2s;}
+.cr-btn:hover{background:var(--gold-light);}
+
+.daily-section{display:grid;grid-template-columns:1fr 340px;gap:20px;margin-bottom:20px;}
+.jobs-panel{background:var(--dark3);border-radius:14px;padding:22px;}
+.job-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden;}
+.job-card:last-child{margin-bottom:0;}
+.job-card-accent{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.job-num{position:absolute;top:14px;right:16px;font-family:'Playfair Display',serif;font-size:40px;color:rgba(255,255,255,0.04);line-height:1;}
+.job-track-badge{display:inline-block;font-size:10px;font-weight:600;padding:3px 9px;border-radius:10px;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;}
+.job-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:3px;}
+.job-company{font-size:13px;color:var(--gray2);}
+.job-meta{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;}
+.job-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:rgba(255,255,255,0.45);}
+.job-meta-icon{font-size:12px;}
+.job-actions{display:flex;gap:8px;margin-top:14px;}
+.job-apply-btn{flex:1;padding:9px;background:var(--gold);color:var(--dark);border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:background 0.2s;}
+.job-apply-btn:hover{background:var(--gold-light);}
+.job-save-btn{padding:9px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:7px;font-size:12px;color:rgba(255,255,255,0.5);cursor:pointer;font-family:'Outfit',sans-serif;}
+.job-save-btn:hover{background:rgba(255,255,255,0.08);}
+.job-done-badge{display:none;padding:9px 14px;background:rgba(14,124,94,0.15);border:1px solid rgba(14,124,94,0.2);border-radius:7px;font-size:12px;color:#2ecc71;font-weight:600;}
+.job-card.applied .job-apply-btn{display:none;}
+.job-card.applied .job-done-badge{display:block;}
+.job-loading{text-align:center;padding:40px 20px;color:var(--gray2);font-size:14px;display:none;}
+.job-loading.on{display:block;}
+
+.aria-daily-card{background:var(--dark3);border-radius:14px;padding:22px;display:flex;flex-direction:column;}
+.aria-daily-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(185,161,123,0.1);}
+.aria-mini-av{width:44px;height:44px;border-radius:50%;border:2px solid var(--gold);overflow:hidden;flex-shrink:0;}
+.aria-daily-name{font-size:14px;font-weight:600;color:#fff;line-height:1;}
+.aria-daily-sub{font-size:11px;color:var(--gold);margin-top:2px;}
+.aria-message{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.75;flex:1;}
+.aria-message strong{color:#fff;}
+.aria-message .tip{display:block;margin-top:12px;padding:12px 14px;background:rgba(185,161,123,0.08);border-left:2px solid var(--gold);border-radius:0 8px 8px 0;font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;}
+.aria-message .tip strong{color:var(--gold-light);}
+.aria-gen-btn{width:100%;margin-top:16px;padding:11px;background:rgba(185,161,123,0.12);border:1px solid rgba(185,161,123,0.2);border-radius:8px;font-size:12px;font-weight:600;color:var(--gold-light);cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;}
+.aria-gen-btn:hover{background:rgba(185,161,123,0.2);}
+
+.task-checklist{background:var(--dark3);border-radius:14px;padding:22px;margin-bottom:20px;}
+.task-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.task-row:last-child{border-bottom:none;}
+.task-check{width:20px;height:20px;border-radius:5px;border:2px solid rgba(255,255,255,0.15);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;margin-top:1px;}
+.task-check.checked{background:var(--gold);border-color:var(--gold);}
+.task-check.checked::after{content:'✓';font-size:11px;color:var(--dark);font-weight:700;}
+.task-info{flex:1;}
+.task-title{font-size:13px;font-weight:500;color:#fff;margin-bottom:2px;transition:color 0.2s;}
+.task-row.done .task-title{color:rgba(255,255,255,0.3);text-decoration:line-through;}
+.task-desc{font-size:11px;color:var(--gray2);line-height:1.5;}
+.task-tag{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;}
+
+/* AGENT */
+.agent-layout{display:grid;grid-template-columns:290px 1fr;gap:20px;}
+.av-card{background:var(--dark3);border-radius:14px;padding:24px;text-align:center;margin-bottom:14px;}
+.av-circle{width:108px;height:108px;border-radius:50%;margin:0 auto 14px;border:2px solid var(--gold);overflow:hidden;}
+.av-name{font-family:'Playfair Display',serif;font-size:20px;color:#fff;margin-bottom:3px;}
+.av-creds{font-size:11px;color:var(--gray2);line-height:1.5;margin-bottom:10px;}
+.av-status{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;background:rgba(14,124,94,0.15);border-radius:20px;font-size:11px;color:#2ecc71;font-weight:500;}
+.av-sdot{width:5px;height:5px;border-radius:50%;background:#2ecc71;animation:lp 2s infinite;}
+.av-intro{background:var(--dark3);border-radius:12px;padding:16px;font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7;}
+.av-intro strong{color:#fff;}
+.form-card{background:var(--dark3);border-radius:14px;padding:22px;margin-bottom:14px;}
+.fl{font-size:10px;font-weight:600;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;margin-top:12px;display:block;}
+.fl:first-child{margin-top:0;}
+.fi,.fs,.fta{width:100%;padding:10px 13px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:13px;font-family:'Outfit',sans-serif;color:#fff;outline:none;transition:border-color 0.2s;}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--gold);}
+.fs option{background:var(--dark2);}
+.fta{resize:vertical;min-height:70px;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.gen-btn{width:100%;margin-top:14px;padding:13px;background:var(--gold);color:var(--dark);border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;transition:all 0.2s;}
+.gen-btn:hover{background:var(--gold-light);}
+.gen-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.out-card{background:var(--dark3);border-radius:14px;padding:24px;min-height:460px;display:flex;flex-direction:column;}
+.out-empty{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--gray2);text-align:center;}
+.out-empty p{font-size:13px;max-width:240px;line-height:1.6;}
+.ld-wrap{flex:1;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+.ld-wrap.on{display:flex;}
+.dots{display:flex;gap:7px;}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--gold);animation:db 1.4s infinite both;}
+.dot:nth-child(2){animation-delay:.2s;}.dot:nth-child(3){animation-delay:.4s;}
+@keyframes db{0%,80%,100%{transform:scale(0.6);opacity:0.3;}40%{transform:scale(1);opacity:1;}}
+.ld-txt{font-size:13px;color:var(--gray2);}
+.res-wrap{display:none;flex-direction:column;flex:1;}
+.res-wrap.on{display:flex;}
+.res-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(185,161,123,0.1);}
+.res-hdr-name{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);}
+.res-hdr-sub{font-size:11px;color:var(--gray2);margin-top:2px;}
+.copy-btn{padding:6px 14px;background:rgba(185,161,123,0.1);border:1px solid rgba(185,161,123,0.2);border-radius:6px;color:var(--gold-light);font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif;}
+.res-text{flex:1;white-space:pre-wrap;font-size:12.5px;line-height:1.85;color:rgba(255,255,255,0.65);overflow-y:auto;}
+.err-box{display:none;padding:14px;background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:8px;font-size:13px;color:#e74c3c;line-height:1.6;margin-top:12px;}
+.err-box.on{display:block;}
+
+
+.menu-btn{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--dark2);border:1px solid rgba(185,161,123,0.2);border-radius:8px;padding:8px 10px;cursor:pointer;}
+.menu-btn svg{width:18px;height:18px;fill:#fff;}
+
+/* PARTICIPANT PROFILE */
+.pp-hero{display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:start;background:var(--dark3);border-radius:14px;padding:24px;margin-bottom:16px;}
+.pp-av{width:80px;height:80px;border-radius:50%;border:2px solid var(--gold);overflow:hidden;flex-shrink:0;}
+.pp-av img{width:100%;height:100%;object-fit:cover;object-position:top;}
+.pp-name{font-family:'Playfair Display',serif;font-size:26px;color:#fff;margin-bottom:4px;}
+.pp-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;margin-bottom:8px;}
+.pp-meta{display:flex;gap:14px;flex-wrap:wrap;}
+.pp-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:rgba(255,255,255,0.5);}
+.pp-actions{display:flex;gap:8px;flex-shrink:0;}
+.pp-btn{padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;}
+.pp-btn-primary{background:var(--gold);color:var(--dark);border:none;}
+.pp-btn-secondary{background:transparent;color:var(--gold-light);border:1px solid rgba(185,161,123,0.3);}
+
+.pp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+.pp-grid-wide{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.pp-card{background:var(--dark3);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:18px;}
+.pp-card-title{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.pp-card-title span{font-size:13px;}
+.pp-field{margin-bottom:10px;}
+.pp-field-label{font-size:10px;color:var(--gray2);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px;}
+.pp-field-value{font-size:13px;color:#fff;font-weight:500;}
+.skill-tag{display:inline-block;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:500;margin:3px 3px 3px 0;}
+.cred-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.cred-row:last-child{border-bottom:none;}
+.cred-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.cred-name{font-size:12px;font-weight:600;color:#fff;flex:1;}
+.cred-date{font-size:10px;color:var(--gray2);}
+.cred-check{width:16px;height:16px;border-radius:50%;background:rgba(14,124,94,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;color:#2ecc71;flex-shrink:0;}
+.progress-step{display:flex;align-items:flex-start;gap:10px;padding:8px 0;position:relative;}
+.progress-step::before{content:'';position:absolute;left:10px;top:28px;bottom:-8px;width:1px;background:rgba(255,255,255,0.06);}
+.progress-step:last-child::before{display:none;}
+.ps-dot{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;margin-top:1px;}
+.ps-done{background:rgba(14,124,94,0.2);color:#2ecc71;border:1px solid rgba(14,124,94,0.3);}
+.ps-active{background:rgba(185,161,123,0.2);color:var(--gold);border:1px solid rgba(185,161,123,0.3);}
+.ps-pending{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.08);}
+.ps-title{font-size:12px;font-weight:600;color:#fff;}
+.ps-date{font-size:11px;color:var(--gray2);margin-top:1px;}
+.career-vision{background:linear-gradient(135deg,rgba(185,161,123,0.15),rgba(185,161,123,0.05));border:1px solid rgba(185,161,123,0.2);border-radius:12px;padding:18px;}
+.cv-label{font-size:10px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+.cv-text{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.7;font-style:italic;}
+.wealth-grid-pp{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.wg-item{padding:12px;}
+.wg-label{font-size:10px;color:var(--gray2);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;}
+.wg-val{font-size:16px;font-weight:600;color:var(--gold);}
+.wg-sub{font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;}
+.wg-bar{height:4px;background:rgba(255,255,255,0.06);border-radius:4px;margin-top:8px;overflow:hidden;}
+.wg-fill{height:100%;border-radius:4px;background:var(--gold);}
+
+/* MESSAGE MENTOR */
+.mm-layout{display:grid;grid-template-columns:1fr 280px;gap:20px;}
+.mm-compose{background:var(--dark3);border-radius:14px;padding:24px;}
+.mm-to{padding:12px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:13px;color:#fff;margin-bottom:12px;}
+.mm-subject{width:100%;padding:11px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:13px;font-family:'Outfit',sans-serif;color:#fff;outline:none;margin-bottom:12px;}
+.mm-subject:focus{border-color:var(--gold);}
+.mm-toolbar{display:flex;gap:6px;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px 8px 0 0;margin-bottom:0;}
+.mm-tool-btn{padding:4px 8px;background:transparent;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:12px;font-weight:600;border-radius:4px;}
+.mm-tool-btn:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.mm-body{width:100%;min-height:160px;padding:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-top:none;border-radius:0 0 8px 8px;font-size:13px;font-family:'Outfit',sans-serif;color:#fff;outline:none;resize:vertical;}
+.mm-body:focus{border-color:var(--gold);}
+.mm-actions{display:flex;gap:10px;margin-top:14px;}
+.mm-send{padding:10px 24px;background:var(--gold);color:var(--dark);border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;}
+.mm-cancel{padding:10px 16px;background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif;}
+.mm-sent{display:none;padding:16px;background:rgba(14,124,94,0.12);border:1px solid rgba(14,124,94,0.2);border-radius:8px;color:#2ecc71;font-size:13px;margin-top:12px;text-align:center;}
+.mm-sent.on{display:block;}
+.mentor-profile{background:var(--dark3);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px;}
+.mentor-photo{width:72px;height:72px;border-radius:50%;overflow:hidden;border:2px solid var(--gold);margin:0 auto 10px;}
+.mentor-photo img{width:100%;height:100%;object-fit:cover;}
+.mentor-name{font-family:'Playfair Display',serif;font-size:17px;color:#fff;text-align:center;}
+.mentor-title{font-size:11px;color:var(--gray2);text-align:center;margin-top:2px;}
+.mentor-bio{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;text-align:center;}
+.mentor-detail{display:flex;align-items:flex-start;gap:10px;padding:10px;background:rgba(255,255,255,0.04);border-radius:8px;}
+.mentor-detail-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.mentor-detail-label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:2px;}
+.mentor-detail-val{font-size:12px;color:#fff;}
+.mentor-tip{background:rgba(185,161,123,0.08);border-left:2px solid var(--gold);border-radius:0 8px 8px 0;padding:12px 14px;}
+.mentor-tip-label{font-size:10px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px;}
+.mentor-tip-text{font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;}
+
+/* RESOURCE LIBRARY */
+.rl-welcome{background:var(--dark3);border-radius:14px;padding:22px;margin-bottom:16px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;}
+.rl-welcome-title{font-family:'Playfair Display',serif;font-size:22px;color:#fff;margin-bottom:6px;}
+.rl-welcome-sub{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;max-width:500px;}
+.rl-milestone{background:rgba(185,161,123,0.1);border:1px solid rgba(185,161,123,0.2);border-radius:10px;padding:14px 18px;min-width:200px;}
+.rl-milestone-label{font-size:10px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;}
+.rl-milestone-val{font-size:14px;font-weight:600;color:#fff;}
+.rl-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+.rl-tab{padding:7px 16px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);background:transparent;color:rgba(255,255,255,0.45);font-family:'Outfit',sans-serif;transition:all 0.2s;}
+.rl-tab.on{background:rgba(185,161,123,0.15);color:var(--gold-light);border-color:rgba(185,161,123,0.3);}
+.rl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.rl-card{background:var(--dark3);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;position:relative;}
+.rl-card-type{font-size:10px;font-weight:600;padding:3px 8px;border-radius:8px;text-transform:uppercase;letter-spacing:0.06em;align-self:flex-start;}
+.rl-card-featured{position:absolute;top:12px;right:12px;font-size:9px;font-weight:600;padding:2px 7px;border-radius:6px;background:rgba(185,161,123,0.15);color:var(--gold);text-transform:uppercase;letter-spacing:0.06em;}
+.rl-card-icon{font-size:22px;}
+.rl-card-title{font-size:14px;font-weight:600;color:#fff;line-height:1.3;}
+.rl-card-desc{font-size:12px;color:var(--gray2);line-height:1.5;flex:1;}
+.rl-card-meta{font-size:11px;color:rgba(255,255,255,0.3);}
+.rl-card-btn{padding:8px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;border:none;align-self:flex-start;transition:all 0.2s;}
+.rl-card-btn-primary{background:var(--gold);color:var(--dark);}
+.rl-card-btn-secondary{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);}
+.rl-card-btn:hover{opacity:0.85;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:90;}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .menu-btn{display:block;}
+  .overlay.visible{display:block;}
+  .topbar{padding:0 16px 0 50px;}
+  .content{padding:20px 16px 48px;}
+  .daily-banner{margin:12px 16px 0;}
+  .oc-grid,.nj-math,.wealth-grid,.mentor-metrics,.emp-hdr-grid{grid-template-columns:1fr 1fr;}
+  .journey-wrap,.agent-layout,.mentor-grid,.fgrid,.daily-section,.cr-form{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<button class="menu-btn" onclick="toggleSB()"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+<div class="overlay" id="ov" onclick="toggleSB()"></div>
+
+<div class="app">
+<aside class="sidebar" id="sb">
+  <div class="sb-brand">
+    <div class="sb-abbr">ECSA</div>
+    <div class="sb-full">Education to Career Sovereignty Access</div>
+    <div class="sb-mission">NJ Pilot · 75 Participants · 2026</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Program Monitoring</div>
+    <a class="sb-item on" onclick="go('journey',this,'Participant Journey','24-week program — intake through placement')" href="#">
+      <div class="sb-dot"></div><span class="sb-lbl">Participant Journey</span>
+    </a>
+    <a class="sb-item" onclick="go('outcomes',this,'Outcome Metrics','Four benchmarks · Retention · Wealth-building')" href="#">
+      <div class="sb-dot"></div><span class="sb-lbl">Outcome Metrics</span>
+    </a>
+    <a class="sb-item" onclick="go('mentor',this,'Mentor Engagement','AI-matched · Weekly tracking · Active relationships')" href="#">
+      <div class="sb-dot"></div><span class="sb-lbl">Mentor Engagement</span>
+    </a>
+    <a class="sb-item" onclick="go('employers',this,'Employer Partnerships','Committed seats · Placement pipeline')" href="#">
+      <div class="sb-dot"></div><span class="sb-lbl">Employer Partnerships</span>
+    </a>
+    <a class="sb-item" onclick="go('scale',this,'Scale to 5 Million','NJ pilot to national model by 2035')" href="#">
+      <div class="sb-dot"></div><span class="sb-lbl">Scale to 5 Million</span><span class="sb-badge">2035</span>
+    </a>
+    <div class="sb-sec" style="margin-top:8px;">Participant Tools</div>
+    <a class="sb-item" onclick="go('careers',this,'Career Resources','Daily job alerts · Aria coaching · Task checklist')" href="#">
+      <div class="sb-dot"></div><span class="sb-lbl">Career Resources</span><span class="sb-badge new" id="new-badge">NEW</span>
+    </a>
+    <a class="sb-item" onclick="go('agent',this,'ECSA Resume Agent','Aria Thompson · Live AI demonstration')" href="#">
+      <div class="sb-dot"></div><span class="sb-lbl">Resume Agent — Aria</span><span class="sb-badge">LIVE</span>
+    </a>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-foot-name">DLJames Consulting</div>
+    <div class="sb-foot-sub">ECSA Capstone · Prototype v3.0</div>
+  </div>
+</aside>
+
+<main class="main">
+<!-- DAILY NOTIFICATION BANNER -->
+<div class="daily-banner" id="daily-banner" onclick="go('careers',document.querySelector('[onclick*=careers]'),'Career Resources','Daily job alerts · Aria coaching · Task checklist')">
+  <div class="daily-banner-icon">📋</div>
+  <div class="daily-banner-text">
+    <div class="daily-banner-title">Your daily job update is ready</div>
+    <div class="daily-banner-sub" id="banner-sub">Set up your profile in Career Resources to receive personalized job matches every day.</div>
+  </div>
+  <div class="daily-banner-cta">View now →</div>
+  <div class="daily-banner-dot"></div>
+</div>
+
+<div class="topbar">
+  <div>
+    <div class="tb-title" id="tb-title">Participant Journey</div>
+    <div class="tb-sub" id="tb-sub">24-week program — intake through placement</div>
+  </div>
+  <div class="tb-right">
+    <div class="live-pill"><div class="live-dot"></div>Dashboard live</div>
+    <div class="proto-tag">Prototype</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- JOURNEY -->
+<div id="journey" class="panel on">
+  <div class="phase-hdr">
+    <div class="phase-eye">Program Infrastructure</div>
+    <div class="phase-title">The 24-Week Participant Journey</div>
+    <div class="phase-sub">Every participant moves through three phases. No phase is skipped. Every step is tracked and every participant has a named human responsible for their progress.</div>
+  </div>
+  <div class="journey-wrap">
+    <div class="phases">
+      <div class="phase-row">
+        <div class="phase-dot" style="background:#2c3e50;">1</div>
+        <div class="phase-body">
+          <div class="phase-name">Intake and Orientation</div>
+          <div class="phase-time">Weeks 1–2</div>
+          <ul class="phase-items">
+            <li>Intake survey — barriers, device access, career interest assessed</li>
+            <li>AI readiness scoring and credential track recommendation <span class="ai-chip">AI</span></li>
+            <li>Mentor matched within 48 hours — industry, goal, schedule aligned <span class="ai-chip">AI-matched</span></li>
+            <li>Device stipend or loaner issued — technology access guaranteed Day 1</li>
+          </ul>
+        </div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-dot" style="background:var(--gold);">2</div>
+        <div class="phase-body">
+          <div class="phase-name">Credential Track</div>
+          <div class="phase-time">Weeks 3–16 — Core Program</div>
+          <ul class="phase-items">
+            <li>Week 3: 2-hour AI literacy workshop — study tools, career research, resume prep <span class="ai-chip">AI</span></li>
+            <li>Chosen credential: Healthcare, Technology, or Business and Entrepreneurship</li>
+            <li>Weekly mentor check-ins with automated engagement nudges <span class="ai-chip">AI</span></li>
+            <li>Daily job alerts and career coaching through Career Resources <span class="ai-chip">Aria</span></li>
+            <li>Credential earned: Aria Resume Agent builds employer-ready resume in under 5 minutes <span class="ai-chip">Aria</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-dot" style="background:var(--teal);">3</div>
+        <div class="phase-body">
+          <div class="phase-name">Pathway Activation and Placement</div>
+          <div class="phase-time">Weeks 17–24</div>
+          <ul class="phase-items">
+            <li>Personalized career map — NJ salary ranges, next credential, career ladder</li>
+            <li>Warm introductions to named employer partners in participant's chosen track</li>
+            <li>Registered apprenticeship or direct hire within 90 days of credential completion</li>
+            <li>All outcomes tracked — credential, employer contact, offer, apprenticeship start <span class="ai-chip">Dashboard</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-dot" style="background:var(--dark3);border:1px solid rgba(185,161,123,0.2);">+</div>
+        <div class="phase-body">
+          <div class="phase-name">Post-Program Community and Support</div>
+          <div class="phase-time">Months 6 · 12 · 18 · 24</div>
+          <ul class="phase-items">
+            <li>90 days of continued mentor support and career coaching post-placement</li>
+            <li>Monthly Saturday sessions — professional development, financial literacy, wellness</li>
+            <li>Retention tracked at 6, 12, 18, and 24 months</li>
+            <li>Alumni become mentors — the community grows the program organically</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="journey-right">
+      <div class="om"><div class="om-lbl">Pilot participants</div><div class="om-val">75</div><div class="om-sub">Stage 1 cohort · NJ</div></div>
+      <div class="om"><div class="om-lbl">Completion target</div><div class="om-val">80%</div><div class="om-sub">60 of 75 earn credential</div></div>
+      <div class="om"><div class="om-lbl">Placement at 6 months</div><div class="om-val">70%</div><div class="om-sub">Apprenticeship or direct hire</div></div>
+      <div class="om"><div class="om-lbl">Upwardly mobile at 18 mo</div><div class="om-val">60%</div><div class="om-sub">Tied to 2035 BHAG</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- OUTCOMES -->
+<div id="outcomes" class="panel">
+  <div class="phase-hdr"><div class="phase-eye">Outcome Framework</div><div class="phase-title">How ECSA Measures Success</div><div class="phase-sub">Four benchmarks tracked from Day 1 through 24 months. Traditional programs measure employment. ECSA measures upward mobility.</div></div>
+  <div class="oc-grid">
+    <div class="oc" data-n="01"><div class="oc-num">75</div><div class="oc-lbl">Participants entered</div><div class="oc-desc">Every participant onboarded. This is the input measure and the funding commitment.</div><div class="oc-tag">100% entry goal</div></div>
+    <div class="oc" data-n="02"><div class="oc-num">80%</div><div class="oc-lbl">Program completion</div><div class="oc-desc">60 of 75 earn their credential and complete all three phases.</div><div class="oc-tag">60 of 75 participants</div></div>
+    <div class="oc" data-n="03"><div class="oc-num">70%</div><div class="oc-lbl">Placed at 6 months</div><div class="oc-desc">Registered apprenticeship or direct hire within 90 days of credential completion.</div><div class="oc-tag">Above $25–30/hr threshold</div></div>
+    <div class="oc" data-n="04"><div class="oc-num">60%</div><div class="oc-lbl">Upwardly mobile at 18 mo</div><div class="oc-desc">Confirmed upwardly mobile — visible career ladder, wealth-building benefits, or growing venture.</div><div class="oc-tag">Mirrors 2035 BHAG</div></div>
+  </div>
+  <div class="ret-wrap">
+    <div class="ctitle">Retention Timeline — Tracking the Trajectory Not Just the Placement</div>
+    <div class="ret-row"><div class="ret-lbl">6 months</div><div class="ret-track"><div class="ret-fill" style="width:70%;background:var(--gold);"><span class="ret-pct">70%</span><span class="ret-note">placed in apprenticeship or direct hire</span></div></div></div>
+    <div class="ret-row"><div class="ret-lbl">12 months</div><div class="ret-track"><div class="ret-fill" style="width:65%;background:var(--teal);"><span class="ret-pct">65%</span><span class="ret-note">employed with advancement documented</span></div></div></div>
+    <div class="ret-row"><div class="ret-lbl">18 months</div><div class="ret-track"><div class="ret-fill" style="width:60%;background:var(--tech);"><span class="ret-pct">60%</span><span class="ret-note">confirmed upwardly mobile — BHAG benchmark met</span></div></div></div>
+    <div class="ret-row"><div class="ret-lbl">24 months</div><div class="ret-track"><div class="ret-fill" style="width:45%;background:#444;"><span class="ret-pct">Tracked</span><span class="ret-note">promotions, pay increases, re-engagement</span></div></div></div>
+  </div>
+  <div class="ctitle" style="margin-bottom:14px;">Wealth-Building Tracker — What Separates ECSA From Every Other Program</div>
+  <div class="wealth-grid">
+    <div class="wc"><div class="wc-icon">🏥</div><div class="wc-title">Employer-sponsored healthcare</div><div class="wc-desc">Confirmed for every placed participant. Tracked at 6, 12, and 24 months.</div><div class="wc-status">Tracked per participant</div></div>
+    <div class="wc"><div class="wc-icon">🏦</div><div class="wc-title">Retirement benefits</div><div class="wc-desc">401(k) or pension enrollment documented. Financial literacy in monthly community sessions.</div><div class="wc-status">Tracked per participant</div></div>
+    <div class="wc"><div class="wc-icon">📈</div><div class="wc-title">Wage growth over time</div><div class="wc-desc">Starting wage documented at placement. Pay increases tracked at 12 and 24 months.</div><div class="wc-status">Tracked at 12 &amp; 24 months</div></div>
+  </div>
+</div>
+
+<!-- MENTOR -->
+<div id="mentor" class="panel">
+  <div class="phase-hdr"><div class="phase-eye">Mentor Engagement</div><div class="phase-title">Someone Who Knows Their Name</div><div class="phase-sub">AI-matched within 48 hours. Industry-aligned. Weekly check-ins tracked. Every relationship has accountability on both sides.</div></div>
+  <div class="mentor-metrics">
+    <div class="mm"><div class="mm-val">48 hrs</div><div class="mm-lbl">Match target timeline</div><div class="mm-bar"><div class="mm-fill" style="width:100%;"></div></div></div>
+    <div class="mm"><div class="mm-val">75</div><div class="mm-lbl">Active relationships — target</div><div class="mm-bar"><div class="mm-fill" style="width:0%;"></div></div></div>
+    <div class="mm"><div class="mm-val">85%</div><div class="mm-lbl">Weekly check-in rate goal</div><div class="mm-bar"><div class="mm-fill" style="width:85%;"></div></div></div>
+  </div>
+  <div class="mentor-grid">
+    <div class="match-card">
+      <div class="match-title">Mentor match model — pilot participants</div>
+      <div class="match-row"><div class="match-av" style="background:#c0392b;">J</div><div style="flex:1"><div class="match-name">Jordan W.</div><div class="match-track">Healthcare · CNA · Newark</div></div><span class="ms ms-a">Active</span></div>
+      <div class="match-row"><div class="match-av" style="background:#1a5f8a;">M</div><div style="flex:1"><div class="match-name">Marcus T.</div><div class="match-track">Technology · Google IT · Trenton</div></div><span class="ms ms-a">Active</span></div>
+      <div class="match-row"><div class="match-av" style="background:#96620a;">A</div><div style="flex:1"><div class="match-name">Aliyah R.</div><div class="match-track">Business · QuickBooks · Camden</div></div><span class="ms ms-p">Matching</span></div>
+      <div class="match-row"><div class="match-av" style="background:#2c3e50;">D</div><div style="flex:1"><div class="match-name">Devon K.</div><div class="match-track">Healthcare · CNA · Bayonne</div></div><span class="ms ms-p">Matching</span></div>
+    </div>
+    <div class="checkin-card">
+      <div class="match-title">Weekly check-in tracker</div>
+      <div style="font-size:12px;color:var(--gray2);margin-bottom:4px;">Automated nudges sent Thursday if no check-in logged. No relationship falls through the cracks.</div>
+      <div class="week-grid">
+        <div><div class="wd-lbl">W1</div><div class="wd-dot wd-done">✓</div></div>
+        <div><div class="wd-lbl">W2</div><div class="wd-dot wd-done">✓</div></div>
+        <div><div class="wd-lbl">W3</div><div class="wd-dot wd-done">✓</div></div>
+        <div><div class="wd-lbl">W4</div><div class="wd-dot wd-miss">—</div></div>
+        <div><div class="wd-lbl">W5</div><div class="wd-dot wd-done">✓</div></div>
+        <div><div class="wd-lbl">W6</div><div class="wd-dot wd-done">✓</div></div>
+        <div><div class="wd-lbl">W7</div><div class="wd-dot wd-today">→</div></div>
+      </div>
+      <div style="margin-top:14px;padding:12px;background:rgba(185,161,123,0.06);border-radius:8px;font-size:12px;color:rgba(255,255,255,0.38);line-height:1.6;"><strong style="color:var(--gold);">AI matching criteria:</strong> Industry alignment, career goal, geographic proximity, schedule compatibility, and mentor expertise. Staff coordinator confirms every match before activation.</div>
+    </div>
+  </div>
+</div>
+
+<!-- EMPLOYERS -->
+<div id="employers" class="panel">
+  <div class="phase-hdr"><div class="phase-eye">Employer Partnerships</div><div class="phase-title">Placement Is a Commitment — Not a Referral</div><div class="phase-sub">One named employer per track with committed apprenticeship seats. Letters of commitment secured before June 6th.</div></div>
+  <div class="emp-hdr-grid">
+    <div class="ehc" style="border-top-color:var(--hc);"><div class="ehc-track" style="color:var(--hc);">Healthcare track</div><div class="ehc-name">RWJBarnabas Health</div><div class="ehc-seats">5–10 <span style="font-size:13px;font-family:'Outfit',sans-serif;color:var(--gray2);">seats</span></div><div class="ehc-seats-lbl">CNA apprenticeship commitment</div><div class="ehc-s"><div class="ehc-sdot" style="background:var(--gold);"></div><div class="ehc-slbl">Outreach in progress</div></div></div>
+    <div class="ehc" style="border-top-color:var(--tech);"><div class="ehc-track" style="color:#5dade2;">Technology track</div><div class="ehc-name">Verizon Thrive</div><div class="ehc-seats">TBD <span style="font-size:13px;font-family:'Outfit',sans-serif;color:var(--gray2);">pipeline</span></div><div class="ehc-seats-lbl">IT apprenticeship program</div><div class="ehc-s"><div class="ehc-sdot" style="background:var(--gold);"></div><div class="ehc-slbl">Outreach in progress</div></div></div>
+    <div class="ehc" style="border-top-color:var(--biz);"><div class="ehc-track" style="color:#f0a500;">Business track</div><div class="ehc-name">NJ Office of Apprenticeship</div><div class="ehc-seats">GAINS <span style="font-size:13px;font-family:'Outfit',sans-serif;color:var(--gray2);">aligned</span></div><div class="ehc-seats-lbl">NJSBDC + grant funding</div><div class="ehc-s"><div class="ehc-sdot" style="background:#5dade2;"></div><div class="ehc-slbl">Research in progress</div></div></div>
+  </div>
+  <div class="emp-table-wrap">
+    <table class="emp-t">
+      <tr><th>Track</th><th>Employer</th><th>Contact</th><th>Commitment ask</th><th>Starting wage</th><th>Status</th></tr>
+      <tr><td><span class="tdot" style="background:var(--hc);"></span>Healthcare</td><td style="font-weight:500;">RWJBarnabas Health</td><td>Lourdes Valdes, Workforce Dev.</td><td>5–10 CNA apprenticeship seats</td><td>$18–$22/hr</td><td><span class="badge b-prog">In progress</span></td></tr>
+      <tr><td><span class="tdot" style="background:var(--hc);"></span>Healthcare</td><td>Bayada / VNA of NJ</td><td>Home health workforce team</td><td>Direct hire for CNA graduates</td><td>$18–$22/hr</td><td><span class="badge b-tgt">Target</span></td></tr>
+      <tr><td><span class="tdot" style="background:var(--tech);"></span>Technology</td><td style="font-weight:500;">Verizon Thrive</td><td>mycareer.verizon.com</td><td>IT apprenticeship pipeline</td><td>$20–$28/hr</td><td><span class="badge b-prog">In progress</span></td></tr>
+      <tr><td><span class="tdot" style="background:var(--tech);"></span>Technology</td><td>NJ Office of IT</td><td>NJ DOL workforce team</td><td>Pre-apprenticeship pipeline</td><td>$20–$28/hr</td><td><span class="badge b-tgt">Target</span></td></tr>
+      <tr><td><span class="tdot" style="background:var(--biz);"></span>Business</td><td style="font-weight:500;">NJ Office of Apprenticeship</td><td>nj.gov/labor</td><td>GAINS grant alignment</td><td>$19–$25/hr</td><td><span class="badge b-tgt">Target</span></td></tr>
+      <tr><td><span class="tdot" style="background:var(--biz);"></span>Business</td><td>NJSBDC Network</td><td>Small business dev. centers</td><td>Apprenticeship host sites</td><td>$19–$25/hr</td><td><span class="badge b-tgt">Target</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- SCALE -->
+<div id="scale" class="panel">
+  <div class="phase-hdr"><div class="phase-eye">Scale Pathway</div><div class="phase-title">From 75 People to 5 Million by 2035</div><div class="phase-sub">ECSA is not building a program. It is proving a model. Every stage has a participant target, a timeline, and a funding source.</div></div>
+  <div class="scale-hero">
+    <div class="sh-num">5,000,000</div>
+    <div class="sh-lbl">credentials and apprenticeships nationally by 2035</div>
+    <div class="sh-sub">60% of Black high school graduates in NJ entering upwardly mobile careers — the 2035 BHAG</div>
+  </div>
+  <div class="scale-stages">
+    <div class="ss curr"><div class="ss-num" style="background:var(--gold);color:var(--dark);">1</div><div class="ss-body"><div class="ss-title">Prove it — NJ pilot</div><div class="ss-detail">75 participants, 3 tracks, 18 months. Collect outcome data. Publish results. This is what you are funding.</div></div><div class="ss-count"><div class="ss-val now">75</div></div></div>
+    <div class="ss"><div class="ss-num" style="background:#6b5a44;">2</div><div class="ss-body"><div class="ss-title">Scale it — NJ statewide</div><div class="ss-detail">Replicate in 5 NJ counties. Community college partnerships. Apply for NJ GAINS grant.</div></div><div class="ss-count"><div class="ss-val">500</div></div></div>
+    <div class="ss"><div class="ss-num" style="background:#3a3a3a;">3</div><div class="ss-body"><div class="ss-title">Export it — regional model</div><div class="ss-detail">Open-source the ECSA playbook. 10 partner organizations in 5 states adopt the model.</div></div><div class="ss-count"><div class="ss-val">5,000</div></div></div>
+    <div class="ss"><div class="ss-num" style="background:#2a2a2a;">4</div><div class="ss-body"><div class="ss-title">License it — national network</div><div class="ss-detail">100 organizations nationally. Federal DOL and foundation funding secured.</div></div><div class="ss-count"><div class="ss-val">50,000</div></div></div>
+    <div class="ss"><div class="ss-num" style="background:#1a1a1a;border:1px solid rgba(185,161,123,0.15);">5</div><div class="ss-body"><div class="ss-title">Move the number — systemic change</div><div class="ss-detail">Policy integration. Employer accountability. 5 million credentials and apprenticeships by 2035.</div></div><div class="ss-count"><div class="ss-val now">5M</div></div></div>
+  </div>
+  <div class="nj-math">
+    <div class="nm"><div class="nm-val">52K</div><div class="nm-lbl">Black HS graduates in NJ per year</div></div>
+    <div class="nm"><div class="nm-val">60%</div><div class="nm-lbl">Target upwardly mobile by 2035</div></div>
+    <div class="nm"><div class="nm-val">31K</div><div class="nm-lbl">Students to reach per year at scale</div></div>
+    <div class="nm"><div class="nm-val">75</div><div class="nm-lbl">Where it starts — the pilot</div></div>
+  </div>
+</div>
+
+<!-- CAREER RESOURCES -->
+<div id="careers" class="panel">
+  <div class="phase-hdr">
+    <div class="phase-eye">Career Resources</div>
+    <div class="phase-title">Your Daily Job Update — Curated by Aria</div>
+    <div class="phase-sub">1 to 2 jobs matched to your credential track and location — refreshed daily. Aria tells you exactly what to apply for and how to position yourself. Whether you are in an apprenticeship or pursuing micro-credentials, you always know what to do next.</div>
+  </div>
+
+  <div class="cr-setup">
+    <div class="cr-setup-title">Set up your daily job alert</div>
+    <div class="cr-setup-sub">Enter your details once. Aria surfaces the most relevant roles every day when you log in.</div>
+    <div class="cr-form">
+      <div>
+        <label class="cr-fl">Your name</label>
+        <input class="cr-fi" id="cr-name" type="text" placeholder="e.g. Jordan Williams">
+      </div>
+      <div>
+        <label class="cr-fl">Credential track</label>
+        <select class="cr-fs" id="cr-track">
+          <option value="">Select your track</option>
+          <option value="healthcare">Healthcare — CNA</option>
+          <option value="technology">Technology — Google IT</option>
+          <option value="business">Business — QuickBooks</option>
+        </select>
+      </div>
+      <div>
+        <label class="cr-fl">Your county</label>
+        <select class="cr-fs" id="cr-county">
+          <option value="">Select county</option>
+          <option value="Essex (Newark)">Essex (Newark)</option>
+          <option value="Mercer (Trenton)">Mercer (Trenton)</option>
+          <option value="Camden">Camden</option>
+          <option value="Hudson (Bayonne)">Hudson (Bayonne)</option>
+          <option value="Other NJ">Other NJ</option>
+        </select>
+      </div>
+      <button class="cr-btn" onclick="loadCareerResources()">Get My Jobs Today</button>
+    </div>
+  </div>
+
+  <div class="daily-section">
+    <div class="jobs-panel">
+      <div class="ctitle">Today's job matches</div>
+      <div class="job-loading" id="job-loading">Finding your best matches for today...</div>
+      <div id="jobs-container">
+        <div style="text-align:center;padding:40px 20px;color:var(--gray2);font-size:13px;">Set up your profile above to see today's job matches.</div>
+      </div>
+    </div>
+    <div class="aria-daily-card" id="aria-daily">
+      <div class="aria-daily-header">
+        <div class="aria-mini-av">
+          <img src="data:image/jpeg;base64,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" alt="Aria" style="width:100%;height:100%;object-fit:cover;object-position:center top;">
+        </div>
+        <div>
+          <div class="aria-daily-name">Aria Thompson</div>
+          <div class="aria-daily-sub">Your daily career coach</div>
+        </div>
+      </div>
+      <div class="aria-message" id="aria-daily-message">
+        Set up your profile and I will give you a personalized coaching message for today — including exactly which roles to prioritize, how to position yourself, and what to say in your application.
+      </div>
+      <button class="aria-gen-btn" id="aria-refresh-btn" onclick="refreshAriaMessage()" style="display:none;">Refresh Aria's message for today</button>
+    </div>
+  </div>
+
+  <div class="task-checklist" id="task-checklist" style="display:none;">
+    <div class="ctitle">Today's tasks — check them off as you go</div>
+    <div id="tasks-container"></div>
+  </div>
+
+  <div class="card" style="margin-top:0;">
+    <div class="ctitle" style="margin-bottom:12px;">More resources — find opportunities directly</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">
+      <a href="https://www.indeed.com/jobs?q=CNA&l=New+Jersey" target="_blank" style="display:flex;align-items:center;gap:10px;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:10px;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+        <span style="font-size:18px;">🏥</span><div><div style="font-size:13px;font-weight:500;color:#fff;">CNA jobs — Indeed</div><div style="font-size:11px;color:var(--gray2);">New Jersey</div></div>
+      </a>
+      <a href="https://www.indeed.com/jobs?q=IT+Support&l=New+Jersey" target="_blank" style="display:flex;align-items:center;gap:10px;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:10px;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+        <span style="font-size:18px;">💻</span><div><div style="font-size:13px;font-weight:500;color:#fff;">IT Support jobs — Indeed</div><div style="font-size:11px;color:var(--gray2);">New Jersey</div></div>
+      </a>
+      <a href="https://www.indeed.com/jobs?q=Bookkeeper+QuickBooks&l=New+Jersey" target="_blank" style="display:flex;align-items:center;gap:10px;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:10px;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+        <span style="font-size:18px;">📊</span><div><div style="font-size:13px;font-weight:500;color:#fff;">Bookkeeper jobs — Indeed</div><div style="font-size:11px;color:var(--gray2);">New Jersey</div></div>
+      </a>
+      <a href="https://www.careeronestop.org/Toolkit/Jobs/find-jobs.aspx" target="_blank" style="display:flex;align-items:center;gap:10px;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:10px;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+        <span style="font-size:18px;">🇺🇸</span><div><div style="font-size:13px;font-weight:500;color:#fff;">CareerOneStop</div><div style="font-size:11px;color:var(--gray2);">DOL federal job board</div></div>
+      </a>
+      <a href="https://nj.gov/labor/career-services/apprenticeship/" target="_blank" style="display:flex;align-items:center;gap:10px;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:10px;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+        <span style="font-size:18px;">🎓</span><div><div style="font-size:13px;font-weight:500;color:#fff;">NJ Apprenticeships</div><div style="font-size:11px;color:var(--gray2);">NJ Office of Apprenticeship</div></div>
+      </a>
+      <a href="https://www.linkedin.com/jobs/search/?location=New%20Jersey" target="_blank" style="display:flex;align-items:center;gap:10px;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:10px;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.07)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+        <span style="font-size:18px;">🔗</span><div><div style="font-size:13px;font-weight:500;color:#fff;">LinkedIn Jobs</div><div style="font-size:11px;color:var(--gray2);">New Jersey</div></div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- RESUME AGENT -->
+<div id="agent" class="panel">
+  <div class="phase-hdr"><div class="phase-eye">Technology-Enabled Ecosystem</div><div class="phase-title">ECSA Resume Agent — Meet Aria</div><div class="phase-sub">Every ECSA participant receives Aria's help upon completing their credential. This is a live demonstration of the AI tool built into the program.</div></div>
+  <div class="agent-layout">
+    <div>
+      <div class="av-card">
+        <div class="av-circle">
+          <img src="data:image/jpeg;base64,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" alt="Aria Thompson" style="width:100%;height:100%;object-fit:cover;object-position:center top;">
+        </div>
+        <div class="av-name">Aria Thompson</div>
+        <div class="av-creds">MBA · SPHR · SHRM-SCP · CPRW · CEIP<br>Chief Career Strategist</div>
+        <div class="av-status" id="av-status"><div class="av-sdot"></div><span id="av-status-txt">Ready to help</span></div>
+      </div>
+      <div class="av-intro" style="margin-bottom:14px;">
+        <strong>Hello, I'm Aria Thompson.</strong> I'm a former CHRO, Fortune 500 recruiter, and executive resume writer — and your ECSA Resume Agent. You just earned something real. Now let's make sure every employer knows it.
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="form-card">
+        <label class="fl">Participant name</label>
+        <input class="fi" id="ag-name" type="text" placeholder="e.g. Jordan Williams">
+        <label class="fl">Credential track</label>
+        <select class="fs" id="ag-track">
+          <option value="">Select a track</option>
+          <option value="healthcare">Healthcare — Certified Nursing Assistant (CNA)</option>
+          <option value="technology">Technology — Google IT Support Certificate</option>
+          <option value="business">Business — QuickBooks Certified User</option>
+        </select>
+        <div class="fgrid">
+          <div><label class="fl">Target job title</label><input class="fi" id="ag-role" type="text" placeholder="e.g. CNA at RWJBarnabas"></div>
+          <div><label class="fl">City / county</label><input class="fi" id="ag-loc" type="text" placeholder="e.g. Newark, NJ"></div>
+        </div>
+        <label class="fl">Work or volunteer experience</label>
+        <textarea class="fta" id="ag-exp" placeholder="e.g. 1 year home health aide, community volunteer, retail customer service"></textarea>
+        <label class="fl">Additional skills</label>
+        <input class="fi" id="ag-skills" type="text" placeholder="e.g. bilingual, CPR certified, reliable transportation">
+
+        <button class="gen-btn" id="ag-btn" onclick="generateResume()">Generate Resume</button>
+      </div>
+      <div class="out-card">
+        <div class="out-empty" id="ag-empty"><p>Fill in the participant details and click Generate. Aria will build a complete employer-ready resume.</p></div>
+        <div class="ld-wrap" id="ag-load"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="ld-txt">Aria is crafting your resume...</div></div>
+        <div class="err-box" id="ag-err"></div>
+        <div class="res-wrap" id="ag-out">
+          <div class="res-hdr">
+            <div><div class="res-hdr-name" id="res-name">Resume Generated</div><div class="res-hdr-sub">ECSA Program · Aria Thompson · Employer-ready</div></div>
+            <button class="copy-btn" onclick="copyRes()">Copy resume</button>
+          </div>
+          <div class="res-text" id="res-text"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PARTICIPANT PROFILE -->
+<div id="participant" class="panel">
+  <div class="phase-hdr">
+    <div class="phase-eye">Participant Profile</div>
+    <div class="phase-title">Jasmine D.</div>
+    <div class="phase-sub">Full profile view — credential verification, program progress, and wealth-building tracker.</div>
+  </div>
+
+  <div class="pp-hero">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+      <div class="pp-av">
+        <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <rect width="80" height="80" fill="#2a2520"/>
+          <ellipse cx="40" cy="72" rx="28" ry="18" fill="#1a1a1a"/>
+          <ellipse cx="40" cy="34" rx="18" ry="20" fill="#8B6914"/>
+          <ellipse cx="40" cy="16" rx="20" ry="12" fill="#3D2314"/>
+          <ellipse cx="25" cy="24" rx="8" ry="12" fill="#3D2314"/>
+          <ellipse cx="55" cy="24" rx="8" ry="12" fill="#3D2314"/>
+          <ellipse cx="34" cy="34" rx="4" ry="4.5" fill="#2a1a0a"/>
+          <ellipse cx="46" cy="34" rx="4" ry="4.5" fill="#2a1a0a"/>
+          <path d="M35,44 Q40,48 45,44" stroke="#2a1a0a" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <circle cx="25" cy="37" r="2.5" fill="#b9a17b"/>
+          <circle cx="55" cy="37" r="2.5" fill="#b9a17b"/>
+        </svg>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#2ecc71;"><span>●</span> Verified</div>
+    </div>
+    <div>
+      <div class="pp-name">Jasmine D.</div>
+      <div class="pp-badge" style="background:rgba(192,57,43,0.15);color:#e74c3c;">Apprenticeship Ready</div>
+      <div class="pp-meta">
+        <div class="pp-meta-item">🏥 Healthcare (CNA)</div>
+        <div class="pp-meta-item">📅 Cohort: Fall 2023</div>
+        <div class="pp-meta-item">📍 Newark, NJ</div>
+        <div class="pp-meta-item">✓ Verified Participant</div>
+      </div>
+    </div>
+    <div class="pp-actions">
+      <button class="pp-btn pp-btn-primary" onclick="go('resources',document.querySelector('[onclick*=resources]'),\'Resource Library\',\'Learning · Career · Wealth-building\')">Download Profile</button>
+      <button class="pp-btn pp-btn-secondary" onclick="go(\'mentor-msg\',document.querySelector(\'[onclick*=mentor-msg]\'),\'Message Mentor\',\'Dr. Sarah L. · Senior Strategic Advisor\')">Message Mentor</button>
+    </div>
+  </div>
+
+  <div class="pp-grid">
+    <div class="pp-card">
+      <div class="pp-card-title"><span>👤</span> Demographics</div>
+      <div class="pp-field"><div class="pp-field-label">Age</div><div class="pp-field-value">28</div></div>
+      <div class="pp-field"><div class="pp-field-label">Education</div><div class="pp-field-value">Some College</div></div>
+      <div class="pp-field"><div class="pp-field-label">Location</div><div class="pp-field-value">Newark, NJ</div></div>
+      <div class="pp-field"><div class="pp-field-label">Household Status</div><div class="pp-field-value">Single Parent</div></div>
+      <div class="pp-field"><div class="pp-field-label">County</div><div class="pp-field-value">Essex County</div></div>
+    </div>
+    <div class="pp-card">
+      <div class="pp-card-title"><span>🎯</span> Skills Matrix</div>
+      <div style="margin-bottom:8px;">
+        <span class="skill-tag" style="background:rgba(192,57,43,0.15);color:#e74c3c;">Patient Care</span>
+        <span class="skill-tag" style="background:rgba(192,57,43,0.15);color:#e74c3c;">Medical Terminology</span>
+        <span class="skill-tag" style="background:rgba(185,161,123,0.15);color:var(--gold);">AI Literacy</span>
+        <span class="skill-tag" style="background:rgba(185,161,123,0.15);color:var(--gold);">QuickBooks</span>
+        <span class="skill-tag" style="background:rgba(14,124,94,0.15);color:#2ecc71;">Team Leadership</span>
+        <span class="skill-tag" style="background:rgba(14,124,94,0.15);color:#2ecc71;">Communication</span>
+        <span class="skill-tag" style="background:rgba(26,95,138,0.15);color:#5dade2;">CPR Certified</span>
+        <span class="skill-tag" style="background:rgba(26,95,138,0.15);color:#5dade2;">HIPAA Compliance</span>
+      </div>
+    </div>
+    <div class="pp-card">
+      <div class="pp-card-title"><span>🏆</span> Credentials Earned</div>
+      <div class="cred-row"><div class="cred-icon" style="background:rgba(192,57,43,0.15);">🏥</div><div style="flex:1"><div class="cred-name">State CNA License</div><div class="cred-date">Issued: Aug 2023</div></div><div class="cred-check">✓</div></div>
+      <div class="cred-row"><div class="cred-icon" style="background:rgba(185,161,123,0.15);">🤖</div><div style="flex:1"><div class="cred-name">ECSA AI Suite Mastery</div><div class="cred-date">Issued: Oct 2023</div></div><div class="cred-check">✓</div></div>
+      <div class="cred-row"><div class="cred-icon" style="background:rgba(14,124,94,0.15);">❤️</div><div style="flex:1"><div class="cred-name">CPR/AED Certified</div><div class="cred-date">Issued: Sept 2023</div></div><div class="cred-check">✓</div></div>
+      <div class="cred-row"><div class="cred-icon" style="background:rgba(26,95,138,0.15);">🛡️</div><div style="flex:1"><div class="cred-name">HIPAA Compliance</div><div class="cred-date">Issued: July 2023</div></div><div class="cred-check">✓</div></div>
+    </div>
+  </div>
+
+  <div class="pp-grid-wide">
+    <div class="pp-card">
+      <div class="pp-card-title"><span>📋</span> Program Progress</div>
+      <div class="progress-step"><div class="ps-dot ps-done">✓</div><div><div class="ps-title">Application and Assessment</div><div class="ps-date">Completed Aug 12, 2023</div></div></div>
+      <div class="progress-step"><div class="ps-dot ps-done">✓</div><div><div class="ps-title">90-Day Cohort</div><div class="ps-date">Completed Nov 15, 2023</div></div></div>
+      <div class="progress-step"><div class="ps-dot ps-done">✓</div><div><div class="ps-title">Pathway Selection — Healthcare CNA</div><div class="ps-date">Completed Nov 20, 2023</div></div></div>
+      <div class="progress-step"><div class="ps-dot ps-done">✓</div><div><div class="ps-title">Mentor Match — Dr. Sarah L.</div><div class="ps-date">Matched Nov 22, 2023</div></div></div>
+      <div class="progress-step"><div class="ps-dot ps-active">→</div><div><div class="ps-title">Apprenticeship Placement</div><div class="ps-date">In Progress — Newark Health Group</div></div></div>
+      <div class="progress-step"><div class="ps-dot ps-pending">○</div><div><div class="ps-title">60-Day Post-Placement Support</div><div class="ps-date">Pending</div></div></div>
+      <div class="progress-step"><div class="ps-dot ps-pending">○</div><div><div class="ps-title">18-Month Upward Mobility Verification</div><div class="ps-date">Pending</div></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="career-vision">
+        <div class="cv-label">Career Vision</div>
+        <div class="cv-text">"My goal is to transition from part-time caregiving to a full-time nursing career at a Tier-1 hospital, securing financial stability for my family and eventually becoming a healthcare administrator."</div>
+      </div>
+      <div class="pp-card">
+        <div class="pp-card-title"><span>💰</span> Wealth-Building Tracker</div>
+        <div class="wealth-grid-pp">
+          <div class="wg-item"><div class="wg-label">Emergency Fund</div><div class="wg-val">$2,500</div><div class="wg-sub">of $5,000 goal</div><div class="wg-bar"><div class="wg-fill" style="width:50%;"></div></div></div>
+          <div class="wg-item"><div class="wg-label">Employer Healthcare</div><div class="wg-val">Enrolled</div><div class="wg-sub">RWJBarnabas plan</div></div>
+          <div class="wg-item"><div class="wg-label">401(k) Status</div><div class="wg-val">Active</div><div class="wg-sub">3% contribution</div></div>
+          <div class="wg-item"><div class="wg-label">Starting Wage</div><div class="wg-val">$20/hr</div><div class="wg-sub">↑ from $14 pre-ECSA</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MESSAGE MENTOR -->
+<div id="mentor-msg" class="panel">
+  <div class="phase-hdr">
+    <div class="phase-eye">Mentor Engagement</div>
+    <div class="phase-title">Message Your Mentor</div>
+    <div class="phase-sub">Direct, secure messaging between participant and mentor. Every message is logged and tracked for engagement accountability.</div>
+  </div>
+  <div style="font-size:12px;color:var(--gray2);margin-bottom:14px;">Participants → Jasmine D. → Message Mentor</div>
+  <div class="mm-layout">
+    <div class="mm-compose">
+      <div class="ctitle">Compose message</div>
+      <div class="mm-to"><strong style="color:var(--gray2);font-size:10px;text-transform:uppercase;letter-spacing:0.07em;">To:</strong> &nbsp;Dr. Sarah L. (Mentor)</div>
+      <input class="mm-subject" type="text" placeholder="Enter subject line...">
+      <div class="mm-toolbar">
+        <button class="mm-tool-btn">B</button>
+        <button class="mm-tool-btn"><em>I</em></button>
+        <button class="mm-tool-btn">≡</button>
+        <button class="mm-tool-btn">🔗</button>
+        <button class="mm-tool-btn">📎</button>
+      </div>
+      <textarea class="mm-body" placeholder="Begin typing your message here...&#10;&#10;Tip: Be specific about your current challenge or goal. Dr. Sarah responds fastest to direct, goal-oriented questions."></textarea>
+      <div class="mm-actions">
+        <button class="mm-send" onclick="sendMentorMsg()">Send Message</button>
+        <button class="mm-cancel">Cancel</button>
+      </div>
+      <div class="mm-sent" id="mm-sent">✓ Message sent to Dr. Sarah L. She typically responds within 24 hours. You will receive a notification when she replies.</div>
+    </div>
+    <div class="mentor-profile">
+      <div style="text-align:center;">
+        <div class="mentor-photo">
+          <img src="data:image/jpeg;base64,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" alt="Dr. Sarah L." style="width:100%;height:100%;object-fit:cover;object-position:center top;">
+        </div>
+        <div class="mentor-name">Dr. Sarah L.</div>
+        <div class="mentor-title">SENIOR STRATEGIC ADVISOR</div>
+      </div>
+      <div class="mentor-bio">Executive Mentor at Impact Catalyst with 15+ years in nonprofit organizational growth and workforce development.</div>
+      <div class="mentor-detail">
+        <div class="mentor-detail-icon">🕐</div>
+        <div><div class="mentor-detail-label">Availability</div><div class="mentor-detail-val">Responds within 24 hours</div></div>
+      </div>
+      <div class="mentor-detail">
+        <div class="mentor-detail-icon">💬</div>
+        <div><div class="mentor-detail-label">Mentorship Style</div><div class="mentor-detail-val">Direct, Goal-Oriented</div></div>
+      </div>
+      <div class="mentor-detail">
+        <div class="mentor-detail-icon">📅</div>
+        <div><div class="mentor-detail-label">Last Check-in</div><div class="mentor-detail-val">3 days ago</div></div>
+      </div>
+      <div class="mentor-tip">
+        <div class="mentor-tip-label">💡 Mentor Tip</div>
+        <div class="mentor-tip-text">When messaging Dr. Sarah, being specific about your current challenge or strategic bottleneck helps her provide actionable insights more quickly.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESOURCE LIBRARY -->
+<div id="resources" class="panel">
+  <div class="rl-welcome">
+    <div>
+      <div class="rl-welcome-title">Welcome back, Jasmine.</div>
+      <div class="rl-welcome-sub">You are currently in the Apprenticeship Phase of your Healthcare (CNA) pathway. Your suggested modules are focused on clinical mastery and career sovereignty.</div>
+    </div>
+    <div class="rl-milestone">
+      <div class="rl-milestone-label">Current Milestone</div>
+      <div class="rl-milestone-val">Clinical Protocol Certification</div>
+    </div>
+  </div>
+
+  <div class="rl-tabs">
+    <button class="rl-tab on" onclick="rlTab(this,'all')">All Resources</button>
+    <button class="rl-tab" onclick="rlTab(this,'healthcare')">Healthcare Mastery</button>
+    <button class="rl-tab" onclick="rlTab(this,'career')">Career Sovereignty</button>
+    <button class="rl-tab" onclick="rlTab(this,'wealth')">Wealth-Building</button>
+    <button class="rl-tab" onclick="rlTab(this,'external')">External Learning</button>
+  </div>
+
+  <div class="rl-grid" id="rl-grid">
+    <div class="rl-card" data-cat="healthcare">
+      <span class="rl-card-featured">Featured</span>
+      <div class="rl-card-icon">📋</div>
+      <div class="rl-card-type" style="background:rgba(192,57,43,0.15);color:#e74c3c;">Healthcare</div>
+      <div class="rl-card-title">CNA Clinical Protocol Guide</div>
+      <div class="rl-card-desc">Comprehensive breakdown of daily patient care protocols and regulatory safety standards for CNAs in NJ health systems.</div>
+      <div class="rl-card-meta">PDF · 12.4 MB</div>
+      <button class="rl-card-btn rl-card-btn-primary">View Resource</button>
+    </div>
+    <div class="rl-card" data-cat="career">
+      <div class="rl-card-icon">🤖</div>
+      <div class="rl-card-type" style="background:rgba(185,161,123,0.15);color:var(--gold);">Career</div>
+      <div class="rl-card-title">AI-Driven Resume Templates</div>
+      <div class="rl-card-desc">Tailored resume templates optimized for applicant tracking systems in healthcare, tech, and business sectors. Powered by Aria.</div>
+      <div class="rl-card-meta">DocX · 2.1 MB</div>
+      <button class="rl-card-btn rl-card-btn-secondary" onclick="go('agent',document.querySelector('[onclick*=\'agent\']'),\'Resume Agent — Aria\',\'Aria Thompson · Live AI demonstration\')">Use Aria Instead →</button>
+    </div>
+    <div class="rl-card" data-cat="wealth">
+      <div class="rl-card-icon">🏦</div>
+      <div class="rl-card-type" style="background:rgba(14,124,94,0.15);color:#2ecc71;">Wealth</div>
+      <div class="rl-card-title">Healthcare Worker Retirement Planning</div>
+      <div class="rl-card-desc">Strategic planning for 401(k) and pension options specifically for NJ healthcare employees. Includes employer match calculator.</div>
+      <div class="rl-card-meta">Module · 15 mins</div>
+      <button class="rl-card-btn rl-card-btn-primary">Start Module</button>
+    </div>
+    <div class="rl-card" data-cat="external">
+      <div class="rl-card-icon">🔗</div>
+      <div class="rl-card-type" style="background:rgba(26,95,138,0.15);color:#5dade2;">External</div>
+      <div class="rl-card-title">ECSA NotebookLM Suite</div>
+      <div class="rl-card-desc">Query your personal learning history and clinical notes using AI-powered research. Free for all ECSA participants.</div>
+      <div class="rl-card-meta">External Link</div>
+      <button class="rl-card-btn rl-card-btn-primary">Access Portal</button>
+    </div>
+    <div class="rl-card" data-cat="healthcare">
+      <div class="rl-card-icon">📊</div>
+      <div class="rl-card-type" style="background:rgba(192,57,43,0.15);color:#e74c3c;">Healthcare</div>
+      <div class="rl-card-title">Medical Terminology Worksheets</div>
+      <div class="rl-card-desc">Interactive worksheets covering anatomical terms and common clinical vocabulary for CNA certification preparation.</div>
+      <div class="rl-card-meta">XLSX · 4.5 MB</div>
+      <button class="rl-card-btn rl-card-btn-secondary">Download</button>
+    </div>
+    <div class="rl-card" data-cat="career">
+      <div class="rl-card-icon">⭐</div>
+      <div class="rl-card-type" style="background:rgba(185,161,123,0.15);color:var(--gold);">Career</div>
+      <div class="rl-card-title">STAR Interview Strategy Guide</div>
+      <div class="rl-card-desc">How to frame your clinical experience using the Situation, Task, Action, Result method for healthcare employer interviews.</div>
+      <div class="rl-card-meta">Guide · 8 pages</div>
+      <button class="rl-card-btn rl-card-btn-primary">View Resource</button>
+    </div>
+    <div class="rl-card" data-cat="wealth">
+      <div class="rl-card-icon">💳</div>
+      <div class="rl-card-type" style="background:rgba(14,124,94,0.15);color:#2ecc71;">Wealth</div>
+      <div class="rl-card-title">Building Credit as a Healthcare Professional</div>
+      <div class="rl-card-desc">Step-by-step guide to improving your credit score, understanding employer benefits, and building financial resilience.</div>
+      <div class="rl-card-meta">PDF · 3.2 MB</div>
+      <button class="rl-card-btn rl-card-btn-secondary">Download</button>
+    </div>
+    <div class="rl-card" data-cat="external">
+      <div class="rl-card-icon">🎓</div>
+      <div class="rl-card-type" style="background:rgba(26,95,138,0.15);color:#5dade2;">External</div>
+      <div class="rl-card-title">NJ Office of Apprenticeship Portal</div>
+      <div class="rl-card-desc">Official NJ DOL apprenticeship listings filtered for ECSA-eligible roles in healthcare, technology, and business.</div>
+      <div class="rl-card-meta">Government Resource</div>
+      <button class="rl-card-btn rl-card-btn-primary">Access Portal</button>
+    </div>
+    <div class="rl-card" data-cat="career">
+      <div class="rl-card-icon">📱</div>
+      <div class="rl-card-type" style="background:rgba(185,161,123,0.15);color:var(--gold);">Career</div>
+      <div class="rl-card-title">LinkedIn Profile Optimization</div>
+      <div class="rl-card-desc">How to position your ECSA credential and clinical experience for maximum visibility to NJ healthcare recruiters.</div>
+      <div class="rl-card-meta">Guide · 12 mins</div>
+      <button class="rl-card-btn rl-card-btn-secondary">Start Module</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- content -->
+</main>
+</div><!-- app -->
+
+<script>
+
+
+let crProfile={name:'',track:'',county:''};
+
+function go(id,el,title,sub){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  el.classList.add('on');
+  document.getElementById('tb-title').textContent=title;
+  document.getElementById('tb-sub').textContent=sub;
+  if(id==='careers') document.getElementById('new-badge').style.display='none';
+  closeSB();
+}
+function toggleSB(){document.getElementById('sb').classList.toggle('open');document.getElementById('ov').classList.toggle('visible');}
+function closeSB(){document.getElementById('sb').classList.remove('open');document.getElementById('ov').classList.remove('visible');}
+
+// ── CAREER RESOURCES ──
+const JOB_DATA={
+  healthcare:[
+    {title:'Certified Nursing Assistant (CNA)',company:'RWJBarnabas Health',location:'Newark, NJ',wage:'$19–$22/hr',type:'Full-time',track:'healthcare',color:'#c0392b',url:'https://www.indeed.com/jobs?q=CNA&l=Newark+NJ'},
+    {title:'Home Health Aide — CNA preferred',company:'Bayada Home Health Care',location:'Essex County, NJ',wage:'$18–$21/hr',type:'Full-time + Benefits',track:'healthcare',color:'#c0392b',url:'https://www.indeed.com/jobs?q=home+health+aide+CNA&l=Essex+County+NJ'},
+    {title:'Patient Care Technician',company:'Hackensack Meridian Health',location:'Northern NJ',wage:'$18–$23/hr',type:'Full-time',track:'healthcare',color:'#c0392b',url:'https://www.indeed.com/jobs?q=patient+care+technician&l=New+Jersey'},
+  ],
+  technology:[
+    {title:'IT Support Specialist — Help Desk',company:'Verizon',location:'Basking Ridge, NJ',wage:'$22–$26/hr',type:'Full-time + Benefits',track:'technology',color:'#1a5f8a',url:'https://www.indeed.com/jobs?q=IT+support+specialist&l=Basking+Ridge+NJ'},
+    {title:'Desktop Support Technician',company:'NJ Office of Information Technology',location:'Trenton, NJ',wage:'$20–$25/hr',type:'State government + Benefits',track:'technology',color:'#1a5f8a',url:'https://www.indeed.com/jobs?q=desktop+support+technician&l=Trenton+NJ'},
+    {title:'IT Help Desk Analyst I',company:'Atlantic Health System',location:'Morristown, NJ',wage:'$21–$27/hr',type:'Full-time',track:'technology',color:'#1a5f8a',url:'https://www.indeed.com/jobs?q=IT+help+desk&l=Morristown+NJ'},
+  ],
+  business:[
+    {title:'Bookkeeper — QuickBooks required',company:'NJ Nonprofit Network',location:'Trenton, NJ',wage:'$20–$24/hr',type:'Full-time',track:'business',color:'#96620a',url:'https://www.indeed.com/jobs?q=bookkeeper+quickbooks&l=Trenton+NJ'},
+    {title:'Administrative Assistant — Finance',company:'NJSBDC Partner Business',location:'Camden, NJ',wage:'$19–$23/hr',type:'Full-time + Benefits',track:'business',color:'#96620a',url:'https://www.indeed.com/jobs?q=administrative+assistant+finance&l=Camden+NJ'},
+    {title:'Accounts Payable Clerk',company:'Regional Small Business',location:'Essex County, NJ',wage:'$20–$25/hr',type:'Full-time',track:'business',color:'#96620a',url:'https://www.indeed.com/jobs?q=accounts+payable+clerk&l=Essex+County+NJ'},
+  ]
+};
+
+const TRACK_LABELS={healthcare:'Healthcare · CNA',technology:'Technology · Google IT',business:'Business · QuickBooks'};
+const TRACK_TIPS={
+  healthcare:'When applying for CNA roles, lead with your state-approved certification and any patient care experience you have — paid or volunteer. NJ health systems are actively hiring and your credential is exactly what they are looking for.',
+  technology:'IT Support roles want to see problem-solving confidence. In your application, mention the Google IT certificate prominently and highlight any experience troubleshooting devices, helping others with technology, or working in fast-paced environments.',
+  business:'QuickBooks certification signals immediately that you can step in and contribute on Day 1. When applying to nonprofit or small business roles, mention your ability to manage financial records accurately and your commitment to the organization\'s mission.'
+};
+
+async function loadCareerResources(){
+  const name=document.getElementById('cr-name').value.trim();
+  const track=document.getElementById('cr-track').value;
+  const county=document.getElementById('cr-county').value;
+  if(!track||!county){alert('Please select your credential track and county.');return;}
+  crProfile={name,track,county};
+
+  // Update banner
+  document.getElementById('banner-sub').textContent=`${name||'Your'} daily ${TRACK_LABELS[track]} job update is ready for ${county}.`;
+
+  // Show loading
+  document.getElementById('job-loading').classList.add('on');
+  document.getElementById('jobs-container').innerHTML='';
+
+  // Simulate brief load then show jobs
+  await new Promise(r=>setTimeout(r,800));
+  document.getElementById('job-loading').classList.remove('on');
+
+  // Pick 2 random jobs for today's matches
+  const pool=JOB_DATA[track]||[];
+  const shuffled=[...pool].sort(()=>Math.random()-0.5).slice(0,2);
+  const container=document.getElementById('jobs-container');
+  container.innerHTML='';
+
+  shuffled.forEach((job,i)=>{
+    const card=document.createElement('div');
+    card.className='job-card';
+    card.id='job-card-'+i;
+    card.innerHTML=`
+      <div class="job-card-accent" style="background:${job.color};"></div>
+      <div class="job-num">${i+1}</div>
+      <div class="job-track-badge" style="background:${job.color}22;color:${job.color};">${TRACK_LABELS[job.track]}</div>
+      <div class="job-title">${job.title}</div>
+      <div class="job-company">${job.company}</div>
+      <div class="job-meta">
+        <span class="job-meta-item"><span class="job-meta-icon">📍</span>${job.location}</span>
+        <span class="job-meta-item"><span class="job-meta-icon">💰</span>${job.wage}</span>
+        <span class="job-meta-item"><span class="job-meta-icon">⏱</span>${job.type}</span>
+      </div>
+      <div class="job-actions">
+        <button class="job-apply-btn" onclick="applyJob(${i},'${job.url}')">Apply now</button>
+        <button class="job-save-btn">Save for later</button>
+        <span class="job-done-badge">✓ Applied today</span>
+      </div>`;
+    container.appendChild(card);
+  });
+
+  // Show Aria message
+  const tip=TRACK_TIPS[track]||'';
+  const greeting=name?`Good morning, ${name.split(' ')[0]}.`:'Good morning.';
+  document.getElementById('aria-daily-message').innerHTML=`
+    <strong>${greeting}</strong> I pulled two roles for you today that match your ${TRACK_LABELS[track]} credential in ${county}. Both are within your target wage range and are actively hiring right now in New Jersey.<br><br>
+    Here is my coaching for today: <span class="tip"><strong>Application tip:</strong> ${tip} Your ECSA credential is a competitive advantage — make sure it appears in the first three lines of your application every single time.</span>`;
+  document.getElementById('aria-refresh-btn').style.display='block';
+
+  // Show task checklist
+  buildChecklist(track,shuffled);
+  document.getElementById('task-checklist').style.display='block';
+  document.getElementById('new-badge').style.display='none';
+}
+
+function applyJob(i,url){
+  window.open(url,'_blank');
+  const card=document.getElementById('job-card-'+i);
+  if(card) card.classList.add('applied');
+  // Check off the apply task
+  const applyTask=document.querySelector('[data-task="apply-'+i+'"]');
+  if(applyTask) checkTask(applyTask);
+}
+
+function buildChecklist(track,jobs){
+  const container=document.getElementById('tasks-container');
+  const tasks=[
+    {id:'review-jobs',title:'Review today\'s 2 job matches',desc:'Read both listings carefully. Note the requirements and what matches your credential.',tag:'Daily',tagColor:'var(--gold)'},
+    {id:'apply-0',title:`Apply to: ${jobs[0]?.title||'Job 1'}`,desc:`${jobs[0]?.company||''} — ${jobs[0]?.location||''}. Attach your ECSA-built resume.`,tag:'Apply',tagColor:'#2ecc71'},
+    {id:'apply-1',title:`Apply to: ${jobs[1]?.title||'Job 2'}`,desc:`${jobs[1]?.company||''} — ${jobs[1]?.location||''}. Customize your cover letter for this role.`,tag:'Apply',tagColor:'#2ecc71'},
+    {id:'mentor',title:'Log your mentor check-in this week',desc:'Reach out to your mentor. Share today\'s applications and ask for feedback on your approach.',tag:'Mentor',tagColor:'#5dade2'},
+    {id:'resume',title:'Review your resume before applying',desc:'Open your ECSA resume and confirm it highlights your credential prominently in the first three lines.',tag:'Resume',tagColor:track==='healthcare'?'#c0392b':track==='technology'?'#1a5f8a':'#96620a'},
+  ];
+  container.innerHTML='';
+  tasks.forEach(t=>{
+    const row=document.createElement('div');
+    row.className='task-row';
+    row.dataset.taskId=t.id;
+    row.innerHTML=`
+      <div class="task-check" onclick="checkTask(this)" data-task="${t.id}"></div>
+      <div class="task-info">
+        <div class="task-title">${t.title}</div>
+        <div class="task-desc">${t.desc}</div>
+      </div>
+      <span class="task-tag" style="background:${t.tagColor}22;color:${t.tagColor};">${t.tag}</span>`;
+    container.appendChild(row);
+  });
+}
+
+function checkTask(el){
+  el.classList.toggle('checked');
+  const row=el.closest('.task-row');
+  if(row) row.classList.toggle('done',el.classList.contains('checked'));
+}
+
+async function refreshAriaMessage(){
+  const{track,county,name}=crProfile;
+  if(!track) return;
+  const btn=document.getElementById('aria-refresh-btn');
+  btn.textContent='Aria is thinking...';btn.disabled=true;
+  try{
+    const prompt=`You are Aria Thompson, executive career coach. Give a 3-sentence daily career coaching message to an ECSA participant named ${name||'a participant'} who is working toward their ${TRACK_LABELS[track]} credential in ${county}, New Jersey. Be specific, warm, and actionable. Then add one concrete application tip in a second paragraph starting with "Application tip:". Keep the whole response under 120 words.`;
+    const res=await fetch('/.netlify/functions/resume',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const msg=data.content?.map(c=>c.text||'').join('')||'';
+    if(msg){
+      const parts=msg.split('Application tip:');
+      document.getElementById('aria-daily-message').innerHTML=`${parts[0]}${parts[1]?`<span class="tip"><strong>Application tip:</strong>${parts[1]}</span>`:''}`;
+    }
+  }catch(e){console.log('Aria refresh failed',e);}
+  btn.textContent='Refresh Aria\'s message for today';btn.disabled=false;
+}
+
+// ── RESUME AGENT ──
+function setAriaState(s){
+  const st=document.getElementById('av-status');
+  const txt=document.getElementById('av-status-txt');
+  const dot=st.querySelector('.av-sdot');
+  const mouth=document.getElementById('aria-mouth');
+  if(s==='thinking'){st.style.background='rgba(185,161,123,0.12)';st.style.color='#b9a17b';dot.style.background='#b9a17b';txt.textContent='Building your resume...';if(mouth)mouth.setAttribute('d','M47,64 Q54,67 61,64');}
+  else if(s==='done'){st.style.background='rgba(14,124,94,0.15)';st.style.color='#2ecc71';dot.style.background='#2ecc71';txt.textContent='Resume complete!';if(mouth)mouth.setAttribute('d','M45,64 Q54,72 63,64');}
+  else{st.style.background='rgba(14,124,94,0.15)';st.style.color='#2ecc71';dot.style.background='#2ecc71';txt.textContent='Ready to help';if(mouth)mouth.setAttribute('d','M47,64 Q54,69 61,64');}
+}
+
+
+
+async function generateResume(){
+  const name=document.getElementById('ag-name').value.trim();
+  const track=document.getElementById('ag-track').value;
+  const role=document.getElementById('ag-role').value.trim();
+  const loc=document.getElementById('ag-loc').value.trim();
+  const exp=document.getElementById('ag-exp').value.trim();
+  const skills=document.getElementById('ag-skills').value.trim();
+  if(!name||!track||!role){alert('Please fill in name, credential track, and target job title.');return;}
+  const tracks={healthcare:'Certified Nursing Assistant (CNA) — NJ State-Approved',technology:'Google IT Support Professional Certificate',business:'QuickBooks Certified User + Business Foundations Module'};
+  const btn=document.getElementById('ag-btn');
+  const empty=document.getElementById('ag-empty');
+  const load=document.getElementById('ag-load');
+  const out=document.getElementById('ag-out');
+  const err=document.getElementById('ag-err');
+  btn.disabled=true;empty.style.display='none';load.classList.add('on');out.classList.remove('on');err.classList.remove('on');
+  setAriaState('thinking');
+  const prompt=`Participant: ${name}\nCredential: ${tracks[track]}\nTarget job: ${role}\nLocation: ${loc||'New Jersey'}\nExperience: ${exp||'Motivated career starter'}\nSkills: ${skills||'Quick learner, reliable, team player'}\n\nCreate a complete employer-ready resume. Celebrate the credential. Make the most of their experience. Output resume only.`;
+  try{
+    const res=await fetch('/.netlify/functions/resume',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:[{role:'user',content:prompt}]})
+    });
+    if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'Server error '+res.status);}
+    const data=await res.json();
+    const text=data.content?.map(c=>c.text||'').join('')||'';
+    if(!text)throw new Error('Empty response from Aria');
+    document.getElementById('res-name').textContent=name+' — Resume';
+    document.getElementById('res-text').textContent=text;
+    out.classList.add('on');setAriaState('done');
+  }catch(e){
+    err.textContent='Aria encountered an issue: '+e.message+'. Please try again.';
+    err.classList.add('on');
+    setAriaState('ready');
+  }
+  load.classList.remove('on');btn.disabled=false;
+}
+
+function copyRes(){
+  navigator.clipboard.writeText(document.getElementById('res-text').textContent).then(()=>{
+    const b=document.querySelector('.copy-btn');b.textContent='Copied!';setTimeout(()=>b.textContent='Copy resume',2000);
+  });
+}
+
+function sendMentorMsg(){
+  const sent = document.getElementById('mm-sent');
+  sent.classList.add('on');
+  document.querySelector('.mm-send').textContent = 'Sent ✓';
+  document.querySelector('.mm-send').style.background = '#2ecc71';
+  document.querySelector('.mm-send').style.color = '#fff';
+  document.querySelector('.mm-send').disabled = true;
+}
+
+function rlTab(btn, cat){
+  document.querySelectorAll('.rl-tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.rl-card').forEach(card=>{
+    if(cat==='all' || card.dataset.cat===cat){
+      card.style.display='flex';
+    } else {
+      card.style.display='none';
+    }
+  });
+}
+</script>
+</body>
+</html>

@@ -430,8 +430,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--dark);
           </div>
           <div class="typing" id="aria-typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>
           <div class="chat-row">
-            <input class="chat-in" id="aria-in" placeholder="Ask ARIA about your resume, jobs, cover letters, or interviews…" onkeydown="if(event.key==='Enter')sendMsg('aria')">
+            <button class="mic-btn" id="aria-mic" onclick="toggleMic('aria')" title="Speak to ARIA">🎤</button>
+            <input class="chat-in" id="aria-in" placeholder="Ask ARIA — or click 🎤 to speak…" onkeydown="if(event.key==='Enter')sendMsg('aria')">
             <button class="chat-btn" id="aria-btn" onclick="sendMsg('aria')">Send</button>
+          </div>
+          <!-- ARIA Resume Output Panel -->
+          <div class="resume-output" id="aria-resume-output">
+            <div class="resume-output-header">
+              <span class="resume-output-title">📄 ARIA — Polished Resume · Copy-Paste Ready</span>
+              <button class="resume-copy-btn" id="aria-copy-btn" onclick="copyResume()">Copy Resume</button>
+            </div>
+            <div class="resume-body" id="aria-resume-body"></div>
           </div>
         </div>
       </div>
@@ -467,7 +476,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--dark);
           </div>
           <div class="typing" id="lila-typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>
           <div class="chat-row">
-            <input class="chat-in" id="lila-in" placeholder="Ask LILA about your headline, About section, posts, or connection strategy…" onkeydown="if(event.key==='Enter')sendMsg('lila')">
+            <button class="mic-btn" id="lila-mic" onclick="toggleMic('lila')" title="Speak to LILA">🎤</button>
+            <input class="chat-in" id="lila-in" placeholder="Ask LILA — or click 🎤 to speak…" onkeydown="if(event.key==='Enter')sendMsg('lila')">
             <button class="chat-btn" id="lila-btn" onclick="sendMsg('lila')">Send</button>
           </div>
         </div>
@@ -527,7 +537,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--dark);
           </div>
           <div class="typing" id="barrier-typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>
           <div class="chat-row">
-            <input class="chat-in" id="barrier-in" placeholder="Tell NOVA what barrier you are facing — transportation, childcare, housing, finances, or anything else…" onkeydown="if(event.key==='Enter')sendMsg('barrier')">
+            <button class="mic-btn" id="barrier-mic" onclick="toggleMic('barrier')" title="Speak to NOVA">🎤</button>
+            <input class="chat-in" id="barrier-in" placeholder="Tell NOVA what barrier you are facing — or click 🎤 to speak…" onkeydown="if(event.key==='Enter')sendMsg('barrier')">
             <button class="chat-btn" id="barrier-btn" onclick="sendMsg('barrier')" style="background:var(--hc)">Send</button>
           </div>
         </div>
@@ -850,7 +861,30 @@ function show(id,btn){
 // ── AGENT CONFIG ──────────────────────────────────────
 const AGENTS={
   aria:{
-    sys:`You are ARIA — the ECSA Resume Agent. You are a former CHRO, Fortune 500 recruiter, executive resume writer, and career strategist with 15+ years of experience. Your tone is warm, direct, expert, and genuinely encouraging. You are speaking with Jasmine D., a 22-year-old single parent from Newark, NJ who just earned her CNA certification through the ECSA program and is in the apprenticeship placement phase targeting RWJBarnabas Health. Her goal is upward mobility on the CNA → RN → Nurse Practitioner → Healthcare Administrator ladder in New Jersey. Help her with resumes, cover letters, interview prep, job matching, and career strategy. Keep responses focused, practical, and under 180 words. Never be generic — always speak directly to her credential, her track, and her specific situation. Use her name Jasmine.`,
+    sys:`You are ARIA — the ECSA Resume Agent. You are a former CHRO, Fortune 500 recruiter, executive resume writer, and career strategist with 15+ years of experience. Your tone is warm, direct, expert, and genuinely encouraging. You are speaking with Jasmine D., a 22-year-old single parent from Newark, NJ who just earned her CNA certification through the ECSA program and is in the apprenticeship placement phase targeting RWJBarnabas Health. Her goal is upward mobility on the CNA → RN → Nurse Practitioner → Healthcare Administrator ladder in New Jersey. Help her with resumes, cover letters, interview prep, job matching, and career strategy. Keep responses focused, practical, and under 180 words unless the user asks for a resume or cover letter. Use her name Jasmine. Never be generic.
+
+CRITICAL RESUME RULE: When asked to build, write, or create a resume or cover letter, output ONLY the complete formatted document — no intro, no explanation, no commentary before or after. Use this exact format:
+
+JASMINE D.
+Newark, NJ | (973) 555-0194 | jasmine.d@email.com | LinkedIn: linkedin.com/in/jasmined
+
+PROFESSIONAL SUMMARY
+[2-3 sentence summary]
+
+CERTIFICATIONS & CREDENTIALS
+[List each with date]
+
+PROFESSIONAL EXPERIENCE
+[Job title, employer, dates]
+• [Achievement bullet]
+
+EDUCATION
+[School, credential, year]
+
+SKILLS
+[Comma-separated list]
+
+Make it ATS-optimized, specific to her CNA credential and RWJBarnabas target, and employer-ready. The output will be displayed in a special formatted panel.`,
     chat:'aria-chat', typing:'aria-typing', inp:'aria-in', btn:'aria-btn',
     name:'ARIA', color:'var(--gold-dark)', ring:'aria-ring', voiceBtn:'aria-voice-btn',
     voicePitch:1.05, voiceRate:0.95
@@ -869,7 +903,7 @@ const AGENTS={
   }
 };
 const hist={aria:[],lila:[]};
-const voiceOn={aria:true, lila:true}; // voice on by default
+const voiceOn={aria:true, lila:true, barrier:true}; // voice on by default
 let speechSynth = window.speechSynthesis;
 let currentUtterance = null;
 
@@ -917,6 +951,91 @@ function speakText(agent, text){
   utt.onerror = () => stopSpeakingAnim(agent);
   currentUtterance = utt;
   speechSynth.speak(utt);
+}
+
+
+// ── SPEECH RECOGNITION (microphone input) ─────────────
+let recognition = null;
+let activeRecAgent = null;
+
+function toggleMic(agent){
+  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
+    alert('Speech recognition is not supported in this browser. Please use Chrome.');
+    return;
+  }
+  const micBtn = document.getElementById(agent+'-mic');
+  // if already listening for this agent, stop
+  if(activeRecAgent === agent && recognition){
+    recognition.stop();
+    return;
+  }
+  // stop any existing recognition
+  if(recognition){ recognition.stop(); }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'en-US';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  activeRecAgent = agent;
+  micBtn.classList.add('listening');
+  micBtn.textContent = '🔴';
+  recognition.onresult = (e) => {
+    const transcript = Array.from(e.results).map(r=>r[0].transcript).join('');
+    document.getElementById(agent+'-in').value = transcript;
+  };
+  recognition.onend = () => {
+    micBtn.classList.remove('listening');
+    micBtn.textContent = '🎤';
+    activeRecAgent = null;
+    // auto-send if there is text
+    const val = document.getElementById(agent+'-in').value.trim();
+    if(val) sendMsg(agent);
+  };
+  recognition.onerror = (e) => {
+    micBtn.classList.remove('listening');
+    micBtn.textContent = '🎤';
+    activeRecAgent = null;
+    console.error('Speech error:', e.error);
+  };
+  recognition.start();
+}
+
+// ── RESUME DETECTION & DISPLAY ─────────────────────────
+function isResume(text){
+  const markers = ['PROFESSIONAL SUMMARY','CERTIFICATIONS','PROFESSIONAL EXPERIENCE','EDUCATION','SKILLS'];
+  return markers.filter(m => text.toUpperCase().includes(m)).length >= 3;
+}
+
+function showResume(text){
+  const panel = document.getElementById('aria-resume-output');
+  const body = document.getElementById('aria-resume-body');
+  if(panel && body){
+    body.textContent = text;
+    panel.classList.add('visible');
+    panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+}
+
+function copyResume(){
+  const body = document.getElementById('aria-resume-body');
+  const btn = document.getElementById('aria-copy-btn');
+  if(!body) return;
+  navigator.clipboard.writeText(body.textContent).then(()=>{
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy Resume'; btn.classList.remove('copied'); }, 2500);
+  }).catch(()=>{
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = body.textContent;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy Resume'; btn.classList.remove('copied'); }, 2500);
+  });
 }
 
 // ── SEND MESSAGES ──────────────────────────────────────
@@ -975,8 +1094,15 @@ function addBubble(agent,role,sender,color,text){
   const chat=document.getElementById(AGENTS[agent].chat);
   const d=document.createElement('div');
   d.className='cmsg '+role;
-  const formatted = text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
-  d.innerHTML=`<div class="csender" style="color:${color||''}">${sender}</div><div class="cbubble">${formatted}</div>`;
+  // Check if ARIA response is a resume
+  if(agent==='aria' && role==='agent' && isResume(text)){
+    showResume(text);
+    const formatted = '<em style="color:var(--gold-dark)">✓ Your resume is ready in the panel below. Click <strong>Copy Resume</strong> to copy it.</em>';
+    d.innerHTML=`<div class="csender" style="color:${color||''}">${sender}</div><div class="cbubble">${formatted}</div>`;
+  } else {
+    const formatted = text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    d.innerHTML=`<div class="csender" style="color:${color||''}">${sender}</div><div class="cbubble">${formatted}</div>`;
+  }
   chat.appendChild(d);
   chat.scrollTop=chat.scrollHeight;
 }
